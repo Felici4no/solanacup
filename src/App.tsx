@@ -1,25 +1,27 @@
 import { useState } from 'react'
-import { BRAND, todaysChapter, radarLead } from './data'
+import { BRAND, todaysChapter } from './data'
+import { pulseMatch } from './pulse'
 import { Icon } from './ui'
 import { team } from './assets'
 import { AmbientBackground } from './AmbientBackground'
 import { NavContext } from './nav'
 import type { MatchData } from './MatchCover'
 import Home from './pages/Home'
-import Radar from './pages/Radar'
+import MatchPulse from './pages/MatchPulse'
 import Search from './pages/Search'
 import Profile from './pages/Profile'
 import Watchlist from './pages/Watchlist'
 import MatchDetail from './pages/MatchDetail'
 
-type Tab = 'home' | 'radar' | 'search' | 'profile'
+type Tab = 'home' | 'pulse' | 'search' | 'profile'
 type Overlay = { type: 'match'; match: MatchData } | { type: 'watchlist' }
 
-const TABS: { id: Tab; icon: JSX.Element }[] = [
-  { id: 'home', icon: Icon.Home },
-  { id: 'radar', icon: Icon.Radar },
-  { id: 'search', icon: Icon.Search },
-  { id: 'profile', icon: Icon.Profile },
+// Navigation architecture: Today · Pulse · Explore · Archive
+const TABS: { id: Tab; label: string; icon: JSX.Element }[] = [
+  { id: 'home', label: 'Today', icon: Icon.Home },
+  { id: 'pulse', label: 'Pulse', icon: Icon.Pulse },
+  { id: 'search', label: 'Explore', icon: Icon.Search },
+  { id: 'profile', label: 'Archive', icon: Icon.Profile },
 ]
 
 type Ambient = { colors: [string, string, string?]; intensity: number }
@@ -34,8 +36,8 @@ function ambientFor(tab: Tab, overlay?: Overlay): Ambient {
   switch (tab) {
     case 'home':
       return { colors: [team(todaysChapter.home).colors[0], team(todaysChapter.away).colors[0]], intensity: 0.9 }
-    case 'radar':
-      return { colors: [team(radarLead.match.home).colors[0], team(radarLead.match.away).colors[0]], intensity: 0.5 }
+    case 'pulse':
+      return { colors: [team(pulseMatch.home).colors[0], team(pulseMatch.away).colors[0]], intensity: 0.7 }
     case 'search':
       return { colors: ['#2b303a', '#24222b'], intensity: 0.4 }
     case 'profile':
@@ -90,7 +92,7 @@ export default function App() {
           {overlay?.type === 'match' && <MatchDetail match={overlay.match} />}
           {overlay?.type === 'watchlist' && <Watchlist />}
           {!overlay && tab === 'home' && <Home />}
-          {!overlay && tab === 'radar' && <Radar />}
+          {!overlay && tab === 'pulse' && <MatchPulse />}
           {!overlay && tab === 'search' && <Search />}
           {!overlay && tab === 'profile' && <Profile />}
         </main>
@@ -101,7 +103,7 @@ export default function App() {
           <button
             key={t.id}
             className={`tab ${!overlay && tab === t.id ? 'active' : ''}`}
-            aria-label={t.id}
+            aria-label={t.label}
             aria-current={!overlay && tab === t.id ? 'page' : undefined}
             onClick={() => goTab(t.id)}
           >

@@ -54,6 +54,11 @@ export const Icon = {
       <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
     </svg>
   ),
+  Pulse: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12h3.5l2-6 3.5 12 2.5-8 1.5 2H21" />
+    </svg>
+  ),
   Search: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
       <circle cx="11" cy="11" r="7" />

@@ -6,3 +6,5 @@ dist-ssr
 .vite
 *.tsbuildinfo
 .claude/
+vite.config.js
+vite.config.d.ts
