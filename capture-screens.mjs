@@ -29,7 +29,7 @@ async function chrome(page, { nav }) {
   await page.evaluate((showNav) => {
     let s = document.getElementById('capstyle')
     if (!s) { s = document.createElement('style'); s.id = 'capstyle'; document.head.appendChild(s) }
-    s.textContent = `.statepeek{display:none!important}${showNav ? '' : '.tabbar{display:none!important}'}`
+    s.textContent = `.statepeek{display:none!important}${showNav ? '' : '.navbar{display:none!important}'}`
   }, nav)
   await sleep(60)
 }

@@ -410,7 +410,7 @@ export function CompletedMemory({
         {m.note && <p className="cm-note">“{m.note}”</p>}
 
         <div className="cm-foot">
-          <span className="caption">Preserved on Terrace · private</span>
+          <span className="caption">Preserved on Vez · private</span>
           <button className="cm-edit" onClick={onEdit}>
             Edit Memory
           </button>

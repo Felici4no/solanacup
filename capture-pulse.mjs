@@ -28,7 +28,7 @@ async function chrome(page, { peek = false } = {}) {
   await page.evaluate((showPeek) => {
     let s = document.getElementById('capstyle')
     if (!s) { s = document.createElement('style'); s.id = 'capstyle'; document.head.appendChild(s) }
-    s.textContent = `.tabbar{display:none!important}${showPeek ? '' : '.statepeek{display:none!important}'}`
+    s.textContent = `.navbar{display:none!important}${showPeek ? '' : '.statepeek{display:none!important}'}`
   }, peek)
   await sleep(60)
 }

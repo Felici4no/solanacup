@@ -2,6 +2,7 @@ import {
   team,
   competition,
   coverGradient,
+  darken,
   Crest,
   rgba,
 } from './assets'
@@ -103,6 +104,125 @@ export function MatchCover({
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+/* ============================================================
+   SplitCover — cinematic split-identity match poster, rebuilt to
+   the reference: red smoke × graphite smoke, gold light beam,
+   embers, grounded stadium. Fully generated (CSS/SVG), no photos.
+   ============================================================ */
+
+// deterministic embers on the red (home) side
+const EMBERS = [
+  [8, 30, 1.6, 0.7], [14, 62, 1.1, 0.5], [6, 78, 2, 0.55], [20, 22, 0.9, 0.6],
+  [24, 48, 1.4, 0.45], [12, 44, 0.8, 0.7], [30, 68, 1.2, 0.4], [4, 52, 1.3, 0.5],
+  [18, 84, 1.7, 0.5], [34, 34, 1, 0.5], [10, 16, 1.1, 0.45], [26, 88, 0.9, 0.55],
+  [38, 56, 1.4, 0.35], [16, 72, 0.8, 0.6], [22, 38, 1.1, 0.5], [30, 20, 0.9, 0.4],
+  [42, 74, 1.2, 0.3], [9, 90, 1, 0.5],
+] as const
+
+export function SplitCover({
+  match: m,
+  size = 'hero',
+}: {
+  match: MatchData
+  size?: 'hero' | 'card'
+}) {
+  const h = team(m.home)
+  const a = team(m.away)
+  const comp = competition(m.competition)
+  const hs = h.colors[0]
+  const as_ = a.colors[0]
+  const hero = size === 'hero'
+  const crest = hero ? 60 : 34
+  const live = m.status ? /live|watching/i.test(m.status) : false
+
+  // Layer 1 — base split: deep team color left, graphite right, dark seam.
+  const base = [
+    `radial-gradient(70% 62% at 26% 40%, ${rgba(hs, 0.5)}, transparent 66%)`,
+    `radial-gradient(66% 60% at 78% 30%, ${rgba(as_, 0.34)}, transparent 70%)`,
+    `linear-gradient(100deg, ${darken(hs, 0.46)} 0%, ${darken(hs, 0.78)} 44%, #0a0809 52%, ${darken(as_, 0.82)} 62%, ${darken(as_, 0.6)} 100%)`,
+  ].join(', ')
+
+  return (
+    <div className={`splitcover sc-${size}`} style={{ background: base }}>
+      {/* 2 — smoke */}
+      <span className="pk-smoke pk-smoke-r" style={{ background: `radial-gradient(58% 66% at 30% 44%, ${hs}, ${darken(hs, 0.35)} 52%, transparent 78%)` }} aria-hidden />
+      <span className="pk-smoke pk-smoke-g" aria-hidden />
+      {/* 3 — embers (home side) */}
+      {hero && (
+        <svg className="pk-embers" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>
+          {EMBERS.map(([x, y, r, o], i) => (
+            <circle key={i} cx={x} cy={y} r={r} fill="#ffb066" opacity={o} />
+          ))}
+        </svg>
+      )}
+      {/* 8 — stadium grounded in the lower composition */}
+      <StadiumSilhouette homeColor={hs} />
+      {/* 4 — gold light beam through the centre */}
+      <span className="pk-beam-glow" aria-hidden />
+      <span className="pk-beam" aria-hidden />
+      {/* 10 — vignette */}
+      <span className="pk-vignette" aria-hidden />
+      <span className="atmos-grain" aria-hidden />
+
+      {m.status && hero && (
+        <span className={`cover-status sc-status${live ? ' is-live' : ''}`}>
+          {live && <span className="beat" aria-hidden />}
+          {m.status}
+        </span>
+      )}
+
+      <div className="sc-in">
+        {hero ? (
+          <div className="sc-comp">
+            <span className="c-name">{comp.label}</span>
+            {m.stage && <span className="c-stage">{m.stage}</span>}
+          </div>
+        ) : (
+          <span aria-hidden />
+        )}
+        <div className="sc-teams">
+          <div className="sc-side">
+            <Crest id={h.id} size={crest} />
+            <span className="n">{h.name}</span>
+          </div>
+          {m.score ? (
+            <span className="sc-vs score num">{m.score}</span>
+          ) : (
+            <span className="sc-vs" aria-label="versus">VS</span>
+          )}
+          <div className="sc-side">
+            <Crest id={a.id} size={crest} />
+            <span className="n">{a.name}</span>
+          </div>
+        </div>
+        <div className="sc-foot">
+          {(m.kickoff || m.date) && <span className="t">{m.kickoff ?? m.date}</span>}
+          {m.venue && <span className="v">{m.venue}</span>}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Architectural bowl silhouette anchored in the lower composition,
+   lit red on the home side. */
+function StadiumSilhouette({ homeColor }: { homeColor: string }) {
+  return (
+    <div className="pk-stadium" aria-hidden>
+      <span className="pk-stadium-glow" style={{ background: `radial-gradient(60% 100% at 18% 100%, ${rgba(homeColor, 0.55)}, transparent 70%)` }} />
+      <svg viewBox="0 0 200 96" preserveAspectRatio="xMidYMax slice">
+        {/* filled bowl grounded at the base */}
+        <path d="M0 96 V72 Q100 34 200 72 V96 Z" fill="rgba(6,5,7,0.8)" />
+        <path d="M0 96 V80 Q100 48 200 80 V96 Z" fill="rgba(3,2,4,0.9)" />
+        <ellipse cx="100" cy="106" rx="98" ry="32" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.7" />
+        <ellipse cx="100" cy="112" rx="122" ry="40" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="0.7" />
+        <ellipse cx="100" cy="118" rx="148" ry="50" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.7" />
+        <path d="M8 70 Q100 32 192 70" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="0.7" />
+      </svg>
     </div>
   )
 }

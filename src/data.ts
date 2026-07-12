@@ -2,7 +2,8 @@ import type { MatchData } from './MatchCover'
 
 /* Editorial mock content, now match-centric so every item has identity. */
 
-export const BRAND = 'Terrace'
+export const BRAND = 'Vez'
+export const BRAND_SUB = 'Memories live here'
 
 export const profile = {
   name: 'Lucas Feliciano',
@@ -216,17 +217,17 @@ export const watchlist: { today: WatchMatch[]; week: WatchMatch[]; later: WatchM
   ],
   week: [
     {
-      match: { home: 'brazil', away: 'england', competition: 'worldcup', stage: 'Qualifier' },
-      date: 'Thu · 20:45',
-      venue: 'Maracanã',
+      match: { home: 'brazil', away: 'england', competition: 'worldcup', stage: 'Friendly' },
+      date: '23 Mar · 16:00',
+      venue: 'Wembley Stadium',
       broadcast: 'Globo',
       friends: [{ mono: 'A', color: '#009C3B' }, { mono: 'T', color: '#CF081F' }],
       saved: true,
     },
     {
       match: { home: 'realmadrid', away: 'liverpool', competition: 'ucl', stage: 'Quarterfinal' },
-      date: 'Sat · 17:00',
-      venue: 'Bernabéu',
+      date: '24 Mar · 21:00',
+      venue: 'Santiago Bernabéu',
       broadcast: 'Max',
       saved: true,
     },
@@ -251,8 +252,8 @@ export const watchlist: { today: WatchMatch[]; week: WatchMatch[]; later: WatchM
   ],
 }
 
-// COMING UP on Home — the next few saved chapters.
-export const comingUp: WatchMatch[] = [watchlist.today[0], watchlist.week[0], watchlist.week[1]]
+// COMING UP on Home — the next saved chapters (tonight's match is already the hero).
+export const comingUp: WatchMatch[] = [watchlist.week[0], watchlist.week[1], watchlist.later[0]]
 
 /* ============================================================ MATCH DETAIL */
 export const matchDetail = {

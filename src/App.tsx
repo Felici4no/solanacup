@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BRAND, todaysChapter } from './data'
+import { BRAND, BRAND_SUB, todaysChapter } from './data'
 import { pulseMatch } from './pulse'
 import { Icon } from './ui'
 import { team } from './assets'
@@ -9,19 +9,21 @@ import type { MatchData } from './MatchCover'
 import Home from './pages/Home'
 import MatchPulse from './pages/MatchPulse'
 import Search from './pages/Search'
+import Archive from './pages/Archive'
 import Profile from './pages/Profile'
 import Watchlist from './pages/Watchlist'
 import MatchDetail from './pages/MatchDetail'
 
-type Tab = 'home' | 'pulse' | 'search' | 'profile'
+type Tab = 'home' | 'pulse' | 'search' | 'archive' | 'profile'
 type Overlay = { type: 'match'; match: MatchData } | { type: 'watchlist' }
 
-// Navigation architecture: Today · Pulse · Explore · Archive
-const TABS: { id: Tab; label: string; icon: JSX.Element }[] = [
-  { id: 'home', label: 'Today', icon: Icon.Home },
+// Navigation: Home · Pulse · Pesquisar (emphasised) · Archive · Perfil
+const TABS: { id: Tab; label: string; icon: JSX.Element; emph?: boolean }[] = [
+  { id: 'home', label: 'Home', icon: Icon.Home },
   { id: 'pulse', label: 'Pulse', icon: Icon.Pulse },
-  { id: 'search', label: 'Explore', icon: Icon.Search },
-  { id: 'profile', label: 'Archive', icon: Icon.Profile },
+  { id: 'search', label: 'Pesquisar', icon: Icon.Search, emph: true },
+  { id: 'archive', label: 'Archive', icon: Icon.Archive },
+  { id: 'profile', label: 'Perfil', icon: Icon.Profile },
 ]
 
 type Ambient = { colors: [string, string, string?]; intensity: number }
@@ -40,6 +42,8 @@ function ambientFor(tab: Tab, overlay?: Overlay): Ambient {
       return { colors: [team(pulseMatch.home).colors[0], team(pulseMatch.away).colors[0]], intensity: 0.7 }
     case 'search':
       return { colors: ['#2b303a', '#24222b'], intensity: 0.4 }
+    case 'archive':
+      return { colors: ['#4a4238', '#2a2430'], intensity: 0.55 }
     case 'profile':
       return { colors: [team('saopaulo').colors[0], '#2a2430'], intensity: 0.6 }
   }
@@ -79,11 +83,11 @@ export default function App() {
           ) : (
             <div className="header-spacer" aria-hidden />
           )}
-          <div className="wordmark">
-            {BRAND.slice(0, -1)}
-            <span className="dot">{BRAND.slice(-1)}</span>
+          <div className="wm">
+            <span className="wm-name">{BRAND}</span>
+            <span className="wm-sub">{BRAND_SUB}</span>
           </div>
-          <button className="profile-btn" aria-label="Profile" onClick={() => goTab('profile')}>
+          <button className="profile-btn" aria-label="Profile and settings" onClick={() => goTab('profile')}>
             {Icon.ProfileSmall}
           </button>
         </header>
@@ -94,22 +98,27 @@ export default function App() {
           {!overlay && tab === 'home' && <Home />}
           {!overlay && tab === 'pulse' && <MatchPulse />}
           {!overlay && tab === 'search' && <Search />}
+          {!overlay && tab === 'archive' && <Archive />}
           {!overlay && tab === 'profile' && <Profile />}
         </main>
       </div>
 
-      <nav className="tabbar" aria-label="Primary">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            className={`tab ${!overlay && tab === t.id ? 'active' : ''}`}
-            aria-label={t.label}
-            aria-current={!overlay && tab === t.id ? 'page' : undefined}
-            onClick={() => goTab(t.id)}
-          >
-            {t.icon}
-          </button>
-        ))}
+      <nav className="navbar" aria-label="Primary">
+        {TABS.map((t) => {
+          const active = !overlay && tab === t.id
+          return (
+            <button
+              key={t.id}
+              className={`nav-item${active ? ' active' : ''}${t.emph ? ' emph' : ''}`}
+              aria-label={t.label}
+              aria-current={active ? 'page' : undefined}
+              onClick={() => goTab(t.id)}
+            >
+              {t.emph ? <span className="ic">{t.icon}</span> : t.icon}
+              <span className="nl">{t.label}</span>
+            </button>
+          )
+        })}
       </nav>
     </NavContext.Provider>
   )

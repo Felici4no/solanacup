@@ -71,6 +71,18 @@ export const Icon = {
       <path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" strokeLinecap="round" />
     </svg>
   ),
+  Archive: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+      <rect x="3.5" y="5" width="17" height="4.2" rx="0.8" />
+      <path d="M5.5 9.2V18a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.2" strokeLinecap="round" />
+      <path d="M10 13h4" strokeLinecap="round" />
+    </svg>
+  ),
+  Play: (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M8 5.4v13.2L19 12z" />
+    </svg>
+  ),
   ProfileSmall: (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.3">
       <circle cx="12" cy="9" r="3.4" />

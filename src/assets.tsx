@@ -79,11 +79,11 @@ export function coverGradient(
 /* ---- Registries ---- */
 export const TEAMS: Record<string, Team> = {
   saopaulo: { id: 'saopaulo', name: 'São Paulo', short: 'SPF', city: 'São Paulo', kind: 'club', colors: ['#E4032E', '#111114', '#F2EEE6'] },
-  riverplate: { id: 'riverplate', name: 'River Plate', short: 'RIV', city: 'Buenos Aires', kind: 'club', colors: ['#9E1B32', '#F2EEE6', '#C81E2E'] },
+  riverplate: { id: 'riverplate', name: 'River Plate', short: 'RIV', city: 'Buenos Aires', kind: 'club', colors: ['#8f939b', '#C81E2E', '#F2EEE6'] },
   corinthians: { id: 'corinthians', name: 'Corinthians', short: 'COR', city: 'São Paulo', kind: 'club', colors: ['#111114', '#F2EEE6', '#9AA0A6'] },
   liverpool: { id: 'liverpool', name: 'Liverpool', short: 'LFC', city: 'Liverpool', kind: 'club', colors: ['#C8102E', '#00B2A9', '#F6C544'] },
   milan: { id: 'milan', name: 'Milan', short: 'ACM', city: 'Milan', kind: 'club', colors: ['#12100F', '#A50021', '#F2EEE6'] },
-  realmadrid: { id: 'realmadrid', name: 'Real Madrid', short: 'RMA', city: 'Madrid', kind: 'club', colors: ['#00509E', '#FEBE10', '#F2EEE6'] },
+  realmadrid: { id: 'realmadrid', name: 'Real Madrid', short: 'RMA', city: 'Madrid', kind: 'club', colors: ['#e9e4d6', '#FEBE10', '#00509E'] },
 
   brazil: { id: 'brazil', name: 'Brazil', short: 'BRA', kind: 'nation', colors: ['#009C3B', '#FFDF00', '#002776'], flag: 'BR' },
   argentina: { id: 'argentina', name: 'Argentina', short: 'ARG', kind: 'nation', colors: ['#75AADB', '#F2EEE6', '#F6B40E'], flag: 'AR' },

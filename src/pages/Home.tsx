@@ -6,9 +6,9 @@ import {
   communityMoment,
   comingUp,
 } from '../data'
-import { MatchCover, MemoryStrip, CommunityStory, type MatchData } from '../MatchCover'
+import { MatchCover, SplitCover, MemoryStrip, CommunityStory, type MatchData } from '../MatchCover'
 import { useNav } from '../nav'
-import { Rating, SectionHead, Dot } from '../ui'
+import { Rating, SectionHead, Dot, Icon } from '../ui'
 
 type Phase = 'pre' | 'live' | 'post' | 'none'
 
@@ -29,10 +29,11 @@ export default function Home() {
     setWatching(false)
   }
 
-  // Build the hero match by temporal state.
+  // Build the hero match by temporal state. Pre-match carries no status chip —
+  // the kickoff line already says "Tonight"; the chip appears once there is state.
   const heroMatch: MatchData = {
     ...todaysChapter,
-    status: phase === 'live' ? 'You’re watching' : phase === 'post' ? 'Ended' : watching ? 'You’re in' : 'Tonight',
+    status: phase === 'live' ? 'You’re watching' : phase === 'post' ? 'Ended' : watching ? 'You’re in' : undefined,
     kickoff: phase === 'live' ? todaysChapter.minute : phase === 'post' ? undefined : todaysChapter.kickoff,
     score: phase === 'live' ? todaysChapter.liveScore : phase === 'post' ? todaysChapter.fullTime : undefined,
   }
@@ -57,12 +58,12 @@ export default function Home() {
         {phase !== 'none' ? (
           <div className="hero-cover">
             <button className="cover-tap" onClick={() => openMatch(heroMatch)} aria-label="Open match detail">
-              <MatchCover match={heroMatch} format="hero" />
+              <SplitCover match={heroMatch} size="hero" />
             </button>
             <div className="hero-bar">
               {phase === 'pre' && !watching && (
-                <button className="cta-block" onClick={() => setWatching(true)}>
-                  I’m Watching
+                <button className="cta-block cta-watch" onClick={() => setWatching(true)}>
+                  {Icon.Play} I’m Watching
                 </button>
               )}
               {phase === 'pre' && watching && (
@@ -86,31 +87,28 @@ export default function Home() {
         )}
       </section>
 
-      {/* COMING UP — compact watchlist rail (only when saved matches exist) */}
+      {/* COMING UP — split-cover rail (only when saved matches exist) */}
       {comingUp.length > 0 && (
         <section className="section">
-          <SectionHead label="Coming up" more="Watchlist" />
+          <div className="section-head">
+            <span className="label">Coming up</span>
+            <button className="more" onClick={openWatchlist}>
+              See all →
+            </button>
+          </div>
           <div className="coming-rail">
             {comingUp.map((w, i) => (
-              <div className="coming-card" key={i}>
-                <button className="saved-badge" aria-label="Remove from Watchlist">✓</button>
+              <div className="cu-card" key={i}>
                 <button className="cover-tap" onClick={() => openMatch(w.match)} aria-label="Open match">
-                  <MatchCover match={w.match} format="landscape" />
+                  <SplitCover match={w.match} size="card" />
                 </button>
-                <div className="cc-meta">
-                  <span className="cc-date num">{w.date}</span>
-                  {w.venue && <span className="cc-venue">· {w.venue}</span>}
+                <div className="cu-meta">
+                  <span className="d">{w.date}</span>
+                  {w.venue && <span>· {w.venue}</span>}
                 </div>
               </div>
             ))}
           </div>
-          <button
-            className="wi-btn"
-            style={{ marginTop: 16 }}
-            onClick={openWatchlist}
-          >
-            See all upcoming chapters →
-          </button>
         </section>
       )}
 
@@ -154,10 +152,7 @@ export default function Home() {
 function NoMatchHero() {
   return (
     <div className="hero-cover">
-      <MatchCover
-        match={{ ...onThisDay.match, status: 'From your archive' }}
-        format="hero"
-      />
+      <SplitCover match={{ ...onThisDay.match, status: 'From your archive' }} size="hero" />
       <div className="hero-bar">
         <button className="cta-block ghost">Revisit this memory</button>
       </div>

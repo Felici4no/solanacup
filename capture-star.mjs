@@ -24,7 +24,7 @@ async function chrome(page) {
   await page.evaluate(() => {
     let s = document.getElementById('capstyle')
     if (!s) { s = document.createElement('style'); s.id = 'capstyle'; document.head.appendChild(s) }
-    s.textContent = '.statepeek{display:none!important}.tabbar{display:none!important}'
+    s.textContent = '.statepeek{display:none!important}.navbar{display:none!important}'
   })
   await sleep(60)
 }
