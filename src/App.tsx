@@ -87,8 +87,12 @@ export default function App() {
             <span className="wm-name">{BRAND}</span>
             <span className="wm-sub">{BRAND_SUB}</span>
           </div>
-          <button className="profile-btn" aria-label="Profile and settings" onClick={() => goTab('profile')}>
-            {Icon.ProfileSmall}
+          <button
+            className="profile-btn"
+            aria-label={!overlay && tab === 'profile' ? 'Settings' : 'Profile and settings'}
+            onClick={() => goTab('profile')}
+          >
+            {!overlay && tab === 'profile' ? Icon.Gear : Icon.ProfileSmall}
           </button>
         </header>
 

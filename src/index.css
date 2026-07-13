@@ -88,7 +88,7 @@ img, svg { display: block; }
 
 .header { position: sticky; top: 0; z-index: 40;
   display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
-  padding: calc(env(safe-area-inset-top, 0px) + var(--s2)) var(--s3) var(--s2);
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) var(--s3) 10px;
   background: linear-gradient(180deg, rgba(19, 18, 23, 0.92) 55%, rgba(19, 18, 23, 0));
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .wordmark { text-align: center; font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
@@ -100,7 +100,10 @@ img, svg { display: block; }
 .profile-btn:active { color: var(--ink); border-color: var(--accent); }
 .header-spacer { width: 34px; height: 34px; }
 
-.page { padding: var(--s2) var(--s3) 140px; animation: rise 320ms var(--easing); }
+.page { padding: var(--s2) var(--s3) calc(96px + env(safe-area-inset-bottom, 0px)); animation: rise 320ms var(--easing); }
+/* Home first-viewport rhythm: label hugs the poster, Coming Up sits close to the CTA */
+.hero-first .section-head { margin-bottom: 16px; }
+.section.coming-first { margin-top: 30px; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
 .section { margin-top: var(--s6); }

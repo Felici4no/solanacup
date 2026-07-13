@@ -57,6 +57,7 @@ export function MatchCover({
       style={{ background: bg, borderColor: rgba(a.colors[0], 0.28) }}
     >
       <Atmosphere historic={historic} />
+      {!historic && <TeamSmoke home={m.home} away={m.away} />}
       <span className="cover-scrim" aria-hidden />
 
       <div className="cover-in">
@@ -123,6 +124,44 @@ const EMBERS = [
   [42, 74, 1.2, 0.3], [9, 90, 1, 0.5],
 ] as const
 
+/* Reusable team smoke — cloud that follows a team's colour. Single team, or
+   split (home left, away right). Used on every team/matchup representation. */
+export function TeamSmoke({
+  home,
+  away,
+  single = false,
+}: {
+  home: string
+  away?: string
+  single?: boolean
+}) {
+  const hc = team(home).colors[0]
+  if (single || !away) {
+    return (
+      <span
+        className="tsmoke tsmoke-full"
+        style={{ background: `radial-gradient(64% 60% at 50% 40%, ${hc}, ${darken(hc, 0.4)} 52%, transparent 82%)` }}
+        aria-hidden
+      />
+    )
+  }
+  const ac = team(away).colors[0]
+  return (
+    <>
+      <span
+        className="tsmoke tsmoke-l"
+        style={{ background: `radial-gradient(66% 70% at 30% 44%, ${hc}, ${darken(hc, 0.4)} 52%, transparent 80%)` }}
+        aria-hidden
+      />
+      <span
+        className="tsmoke tsmoke-r"
+        style={{ background: `radial-gradient(66% 70% at 72% 34%, ${ac}, ${darken(ac, 0.42)} 50%, transparent 80%)` }}
+        aria-hidden
+      />
+    </>
+  )
+}
+
 export function SplitCover({
   match: m,
   size = 'hero',
@@ -136,7 +175,7 @@ export function SplitCover({
   const hs = h.colors[0]
   const as_ = a.colors[0]
   const hero = size === 'hero'
-  const crest = hero ? 60 : 34
+  const crest = hero ? 54 : 34
   const live = m.status ? /live|watching/i.test(m.status) : false
 
   // Layer 1 — base split: deep team color left, graphite right, dark seam.
@@ -148,9 +187,8 @@ export function SplitCover({
 
   return (
     <div className={`splitcover sc-${size}`} style={{ background: base }}>
-      {/* 2 — smoke */}
-      <span className="pk-smoke pk-smoke-r" style={{ background: `radial-gradient(58% 66% at 30% 44%, ${hs}, ${darken(hs, 0.35)} 52%, transparent 78%)` }} aria-hidden />
-      <span className="pk-smoke pk-smoke-g" aria-hidden />
+      {/* 2 — smoke (follows both team colours) */}
+      <TeamSmoke home={m.home} away={m.away} />
       {/* 3 — embers (home side) */}
       {hero && (
         <svg className="pk-embers" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden>

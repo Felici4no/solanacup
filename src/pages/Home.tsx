@@ -19,6 +19,9 @@ const PHASES: { id: Phase; label: string }[] = [
   { id: 'none', label: 'No match' },
 ]
 
+// Temporal-state preview is a development aid only; it never occupies production layout.
+const SHOW_STATE_SWITCHER = import.meta.env.DEV
+
 export default function Home() {
   const [phase, setPhase] = useState<Phase>('pre')
   const [watching, setWatching] = useState(false)
@@ -40,20 +43,22 @@ export default function Home() {
 
   return (
     <div className="page">
-      {/* Demo-only: preview all temporal + edge states */}
-      <div className="statepeek" role="group" aria-label="Preview state">
-        <span className="label">State</span>
-        <div className="peek-pills">
-          {PHASES.map((p) => (
-            <button key={p.id} className="peek-pill" aria-pressed={phase === p.id} onClick={() => pick(p.id)}>
-              {p.label}
-            </button>
-          ))}
+      {/* Dev-only: preview all temporal + edge states (never in production layout) */}
+      {SHOW_STATE_SWITCHER && (
+        <div className="statepeek" role="group" aria-label="Preview state">
+          <span className="label">State</span>
+          <div className="peek-pills">
+            {PHASES.map((p) => (
+              <button key={p.id} className="peek-pill" aria-pressed={phase === p.id} onClick={() => pick(p.id)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* SECTION 1 — Today's Chapter */}
-      <section>
+      <section className="hero-first">
         <SectionHead label="Today’s Chapter" />
         {phase !== 'none' ? (
           <div className="hero-cover">
@@ -89,7 +94,7 @@ export default function Home() {
 
       {/* COMING UP — split-cover rail (only when saved matches exist) */}
       {comingUp.length > 0 && (
-        <section className="section">
+        <section className="section coming-first">
           <div className="section-head">
             <span className="label">Coming up</span>
             <button className="more" onClick={openWatchlist}>

@@ -9,16 +9,38 @@ export const profile = {
   name: 'Lucas Feliciano',
   initials: 'LF',
   since: '2026',
+  location: 'São Paulo, SP',
+  tagline: 'Vivo o esporte através da memória.',
   statement:
     'Tricolor since birth. A life measured in matches, stadiums and the people beside me.',
   club: 'São Paulo FC',
   nation: 'Brazil',
   colorId: 'saopaulo',
   stats: [
-    { n: '247', l: 'Matches' },
-    { n: '38', l: 'This Year' },
-    { n: '12', l: 'Stadiums' },
+    { n: '128', l: 'Partidas' },
+    { n: '32', l: 'Este ano' },
+    { n: '24', l: 'Estádios' },
   ],
+  clubs: [
+    { id: 'saopaulo', label: 'São Paulo' },
+    { id: 'riverplate', label: 'River Plate' },
+    { id: 'realmadrid', label: 'Real Madrid' },
+    { id: 'liverpool', label: 'Liverpool' },
+  ],
+  marcante: {
+    date: '17 · 05 · 2023',
+    title: 'São Paulo 2 x 1 Corinthians',
+    meta: 'Morumbi · Copa do Brasil',
+    quote: 'Aquele gol no fim. A explosão. Eu gritei até perder a voz.',
+    home: 'saopaulo',
+    away: 'corinthians',
+  },
+  collections: [
+    { icon: 'ticket', label: 'Ingressos', count: '23' },
+    { icon: 'shirt', label: 'Camisas', count: '07' },
+    { icon: 'trophy', label: 'Conquistas', count: '11' },
+  ],
+  streak: { count: '5 partidas acompanhadas', sub: 'Continue criando memórias.' },
 }
 
 /* SECTION 1 — Today's Chapter (hero) */

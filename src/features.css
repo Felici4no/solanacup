@@ -714,14 +714,14 @@
 }
 
 /* ============================================================ VEZ — wordmark, split posters, fixed nav */
-.wm { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 2px; }
-.wm-name { font-family: var(--serif); font-weight: 380; font-size: 1.9rem; line-height: 1; color: var(--ink); letter-spacing: 0.01em; }
+.wm { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.wm-name { font-family: var(--serif); font-weight: 380; font-size: 1.58rem; line-height: 1; color: var(--ink); letter-spacing: 0.01em; }
 .wm-sub { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.42em; text-transform: uppercase; color: var(--accent-2); opacity: 0.85; padding-left: 0.42em; }
 
 /* split poster */
 .splitcover { position: relative; overflow: hidden; border-radius: var(--r-cover); border: 1px solid rgba(255,255,255,0.1);
   box-shadow: var(--shadow-cover); isolation: isolate; }
-.sc-hero { aspect-ratio: 4 / 5; }
+.sc-hero { aspect-ratio: 1.42 / 1; max-height: min(38svh, 290px); margin-inline: auto; }
 .sc-card { aspect-ratio: 16 / 10; }
 .sc-stadium { position: absolute; left: -6%; right: -6%; bottom: -2%; width: 112%; height: 54%; z-index: 0; opacity: 0.65;
   -webkit-mask-image: linear-gradient(to top, #000 30%, transparent 96%); mask-image: linear-gradient(to top, #000 30%, transparent 96%); }
@@ -748,24 +748,43 @@
 .sc-card .sc-foot .t { font-size: 0.58rem; letter-spacing: 0.2em; }
 .sc-card .sc-foot .v { font-size: 0.54rem; }
 
+/* Home hero — compact landscape composition (competition ~top 13%,
+   teams 22–66%, stadium from ~40%, metadata ~80–93%) */
+.sc-hero .sc-in { padding: 13px 16px 11px; }
+.sc-hero .sc-comp { gap: 2px; }
+.sc-hero .sc-comp .c-name { font-size: 0.62rem; letter-spacing: 0.26em; }
+.sc-hero .sc-comp .c-stage { font-size: 0.54rem; letter-spacing: 0.22em; }
+.sc-hero .sc-side { gap: 7px; }
+.sc-hero .sc-side .n { font-size: 0.9rem; letter-spacing: 0.13em; }
+.sc-hero .sc-vs { font-size: 1.25rem; }
+.sc-hero .sc-vs.score { font-size: 1.7rem; }
+.sc-hero .sc-foot .t { font-size: 0.64rem; letter-spacing: 0.26em; }
+.sc-hero .sc-foot .v { font-size: 0.56rem; letter-spacing: 0.2em; }
+.sc-hero .pk-stadium { height: 60%; }
+.sc-hero .pk-beam, .sc-hero .pk-beam-glow { top: -18%; height: 138%; }
+
 /* poster atmosphere layers */
 .splitcover .sc-in { z-index: 6; }
 .splitcover .sc-status { z-index: 7; }
-.pk-smoke { position: absolute; inset: 0; z-index: 1; mix-blend-mode: screen; pointer-events: none; }
-.pk-smoke-r {
+/* Reusable team smoke — cloud/smoke that follows a team's colour. Used on
+   every team or matchup representation (covers, club cards, posters). */
+.tsmoke { position: absolute; inset: 0; z-index: 0; mix-blend-mode: screen; pointer-events: none;
+  -webkit-mask-composite: source-in; mask-composite: intersect;
+  -webkit-mask-size: cover, cover; mask-size: cover, cover; }
+.tsmoke-l {
   opacity: 0.9;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='400'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.5 0 0 0 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"), linear-gradient(to right, #000 26%, transparent 60%);
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='400'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='11' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.5 0 0 0 -0.5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"), linear-gradient(to right, #000 26%, transparent 60%);
-  -webkit-mask-composite: source-in; mask-composite: intersect;
-  -webkit-mask-size: cover, cover; mask-size: cover, cover;
 }
-.pk-smoke-g {
-  opacity: 0.55;
-  background: radial-gradient(62% 70% at 76% 30%, #d7dadf, #6f7378 46%, transparent 80%);
+.tsmoke-r {
+  opacity: 0.74;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.016' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 -0.42'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"), linear-gradient(to left, #000 34%, transparent 66%);
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.016' numOctaves='5' seed='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 -0.42'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"), linear-gradient(to left, #000 34%, transparent 66%);
-  -webkit-mask-composite: source-in; mask-composite: intersect;
-  -webkit-mask-size: cover, cover; mask-size: cover, cover;
+}
+.tsmoke-full {
+  opacity: 0.85;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.45 0 0 0 -0.48'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 42%, #000 22%, transparent 82%);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='320'%3E%3Cfilter id='c'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.45 0 0 0 -0.48'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23c)'/%3E%3C/svg%3E"), radial-gradient(circle at 50% 42%, #000 22%, transparent 82%);
 }
 .pk-embers { position: absolute; inset: 0; z-index: 2; pointer-events: none; mix-blend-mode: screen;
   filter: blur(0.4px) drop-shadow(0 0 2px rgba(255, 150, 80, 0.6)); }
@@ -810,3 +829,87 @@
 .nav-item.emph .ic { width: 48px; height: 48px; margin-top: -22px; border-radius: 50%; display: grid; place-items: center;
   background: rgba(19, 18, 23, 0.95); border: 1px solid rgba(217, 164, 65, 0.5); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45); }
 .nav-item.emph svg { width: 23px; height: 23px; }
+
+/* ============================================================ PERFIL (Vez) */
+.pf-page { padding-bottom: 150px; }
+
+/* 1 — identidade */
+.pf-id { display: flex; gap: 20px; align-items: center; margin: 6px 0 var(--s5); }
+.pf-avatar { position: relative; width: 118px; height: 118px; flex: 0 0 auto; border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgba(0,0,0,0.6), 0 10px 26px rgba(0,0,0,0.55); }
+.pf-avatar > span, .pf-avatar > svg { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; }
+.pf-av-bg { background:
+  radial-gradient(76% 56% at 50% 8%, rgba(217,164,65,0.45), transparent 58%),
+  radial-gradient(112% 82% at 50% -6%, rgba(226,120,72,0.3), transparent 55%),
+  linear-gradient(180deg, #3a2416, #120d0b 80%); }
+.pf-av-crowd { background-image: radial-gradient(rgba(255,220,180,0.55) 0.6px, transparent 1.1px); background-size: 5px 5px;
+  opacity: 0.18; -webkit-mask-image: linear-gradient(to top, #000 38%, transparent 86%); mask-image: linear-gradient(to top, #000 38%, transparent 86%); }
+.pf-av-figure { z-index: 1; }
+.pf-av-edit { position: absolute; right: 3px; bottom: 3px; width: 30px; height: 30px; border-radius: 50%; z-index: 2;
+  display: grid; place-items: center; color: #17130a; border: 2px solid var(--bg);
+  background: linear-gradient(180deg, #e3b45c, #cf9c3f); box-shadow: 0 2px 8px rgba(0,0,0,0.5); }
+.pf-id-body { min-width: 0; }
+.pf-name { font-family: var(--serif); font-weight: 380; font-size: 1.72rem; line-height: 1.04; letter-spacing: -0.01em; color: var(--ink); }
+.pf-loc { display: flex; align-items: center; gap: 6px; margin-top: 9px; color: var(--ink-2); font-size: 0.96rem; }
+.pf-loc-ic { color: var(--accent-2); display: inline-flex; }
+.pf-tag { margin-top: 10px; color: var(--ink-2); font-size: 0.96rem; line-height: 1.4; }
+
+/* 2 — stats */
+.pf-stats { display: grid; grid-template-columns: repeat(3, 1fr); margin-bottom: var(--s5); }
+.pf-stat { position: relative; text-align: center; padding: 6px 0; }
+.pf-stat + .pf-stat::before { content: ''; position: absolute; left: 0; top: 16%; bottom: 16%; width: 1px; background: var(--line); }
+.pf-stat .n { font-family: var(--serif); font-size: 1.95rem; color: var(--accent); line-height: 1; }
+.pf-stat .l { margin-top: 8px; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-3); }
+
+/* section heads */
+.pf-sec { margin-bottom: var(--s5); }
+.pf-sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--s3); }
+.pf-sec-head .label { letter-spacing: 0.18em; }
+.pf-edit { font-size: 0.8rem; letter-spacing: 0.02em; color: var(--accent); }
+
+/* 3 — clubes do coração */
+.pf-clubs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.club-card { position: relative; aspect-ratio: 1 / 1.12; border-radius: 9px; overflow: hidden;
+  border: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 12px 6px 12px; }
+.club-card .atmos-grain { border-radius: 9px; }
+.club-crest { position: relative; z-index: 1; flex: 1; display: grid; place-items: center; }
+.club-name { position: relative; z-index: 1; font-family: var(--serif); font-size: 0.62rem; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--on-photo); text-align: center; line-height: 1.15; white-space: nowrap;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.7); }
+
+/* 4 — memória marcante */
+.mm-card { display: flex; background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-cover); overflow: hidden; }
+.mm-img { position: relative; width: 132px; flex: 0 0 auto; overflow: hidden;
+  background: radial-gradient(85% 95% at 28% 100%, var(--flare), transparent 62%), linear-gradient(180deg, #2a1412, #0d0909); }
+.mm-crowd { position: absolute; inset: 0; background-image: radial-gradient(rgba(255,200,160,0.55) 0.6px, transparent 1.1px); background-size: 5px 5px; opacity: 0.2; }
+.mm-flare { position: absolute; left: -12%; bottom: -14%; width: 82%; height: 72%;
+  background: radial-gradient(circle at 32% 88%, rgba(255,120,60,0.6), transparent 60%); filter: blur(5px); }
+.mm-body { flex: 1; min-width: 0; padding: var(--s3); }
+.mm-top { display: flex; align-items: center; justify-content: space-between; }
+.mm-date { color: var(--accent); font-size: 0.82rem; letter-spacing: 0.1em; }
+.mm-bookmark { color: var(--accent); display: inline-flex; }
+.mm-title { font-family: var(--serif); font-size: 1.24rem; color: var(--ink); margin-top: 10px; line-height: 1.16; letter-spacing: -0.01em; }
+.mm-meta { display: block; margin-top: 8px; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-2); }
+.mm-quote { margin-top: 12px; font-family: var(--serif); font-style: italic; font-size: 1rem; line-height: 1.45; color: var(--ink-2); }
+
+/* 5 — minhas coleções */
+.pf-collections { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.col-card { display: flex; align-items: center; gap: 9px; padding: var(--s3) 9px;
+  background: var(--surface-1); border: 1px solid var(--line); border-radius: var(--r-cover); }
+.col-icon { color: var(--accent); flex: 0 0 auto; display: inline-flex; }
+.col-icon svg { width: 21px; height: 21px; }
+.col-text { display: flex; flex-direction: column; min-width: 0; }
+.col-label { font-size: 0.56rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent-2); white-space: nowrap; }
+.col-count { font-family: var(--serif); font-size: 1.1rem; color: var(--ink); margin-top: 3px; }
+
+/* 6 — sequência ativa */
+.streak-card { width: 100%; display: flex; align-items: center; gap: 16px; text-align: left; padding: var(--s3);
+  border-radius: var(--r-cover); border: 1px solid rgba(217,164,65,0.34);
+  background: linear-gradient(100deg, rgba(217,164,65,0.2), rgba(217,164,65,0.05) 62%, rgba(217,164,65,0.02)); }
+.streak-icon { width: 52px; height: 52px; flex: 0 0 auto; border-radius: 50%; display: grid; place-items: center;
+  color: var(--accent); border: 1px solid rgba(217,164,65,0.5); background: rgba(0,0,0,0.28); }
+.streak-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.streak-label { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); }
+.streak-title { font-family: var(--serif); font-size: 1.16rem; color: var(--ink); }
+.streak-sub { font-size: 0.85rem; color: var(--ink-3); }
+.streak-chev { color: var(--accent-2); flex: 0 0 auto; display: inline-flex; }
