@@ -3,6 +3,10 @@ import { matchDetail as D } from '../data'
 import { MatchCover, type MatchData } from '../MatchCover'
 import { StadiumVisual } from '../visuals'
 import { Crest, team } from '../assets'
+import { useNav } from '../nav'
+import { useWatchlist, matchId } from '../watchlist'
+import { Button } from '../Button'
+import { Icon } from '../ui'
 import {
   MatchRating,
   CommunityPulse,
@@ -29,6 +33,7 @@ export default function MatchDetail({ match }: { match: MatchData }) {
   const [anchor, setAnchor] = useState(D.anchors[0])
   const [editing, setEditing] = useState(false)
   const [memory, setMemory] = useState<SavedMemory | null>(null)
+  const { openWatchlistMatch } = useNav()
 
   const heroMatch: MatchData = {
     ...match,
@@ -57,29 +62,37 @@ export default function MatchDetail({ match }: { match: MatchData }) {
       {/* 1 — hero */}
       <MatchCover match={heroMatch} format="hero" />
 
-      {/* personal connection */}
-      <div className="md-connection">
-        <span className="mc-mark" aria-hidden>◆</span>
-        <p>
-          {conn.text}
-          <span className="sub">{conn.sub}</span>
-        </p>
-      </div>
-
-      {/* 2 — single primary action */}
+      {/* 2 — personal connection + single primary action.
+             State and action always agree. */}
       <div className="md-primary">
-        {phase === 'pre' && <button className="cta-block">Add to Watchlist</button>}
-        {phase === 'live' && <button className="cta-block">Add a Moment</button>}
-        {phase === 'post' && !editing && !memory && (
-          <button
-            className="cta-block"
-            onClick={() => {
-              setEditing(true)
-              setTab('story')
-            }}
-          >
-            Complete Your Memory
-          </button>
+        {phase === 'pre' && (
+          <WatchlistAction match={match} onManage={() => openWatchlistMatch(match)} />
+        )}
+        {phase === 'live' && (
+          <>
+            <p className="md-connection-text">{conn.text}<span className="sub">{conn.sub}</span></p>
+            <Button variant="primary" size="lg" block onClick={() => setTab('moments')}>
+              Add a Moment
+            </Button>
+          </>
+        )}
+        {phase === 'post' && (
+          <>
+            <p className="md-connection-text">{conn.text}<span className="sub">{conn.sub}</span></p>
+            {!editing && !memory && (
+              <Button
+                variant="primary"
+                size="lg"
+                block
+                onClick={() => {
+                  setEditing(true)
+                  setTab('story')
+                }}
+              >
+                Complete Your Memory
+              </Button>
+            )}
+          </>
         )}
       </div>
 
@@ -203,6 +216,55 @@ export default function MatchDetail({ match }: { match: MatchData }) {
         </div>
       )}
     </div>
+  )
+}
+
+/* Watchlist: NOT SAVED (promo + Add) and SAVED (clickable status row → manage).
+   The two states never coexist; the action always matches the state. */
+function WatchlistAction({ match, onManage }: { match: MatchData; onManage: () => void }) {
+  const wl = useWatchlist()
+  const id = matchId(match)
+  const saved = wl.isSaved(id)
+  const reminder = wl.reminderOn(id)
+  const [saving, setSaving] = useState(false)
+
+  if (!saved) {
+    return (
+      <div>
+        <div className="wl-promo" style={{ marginBottom: 14 }}>
+          <span className="wp-title">Add this match to your Watchlist</span>
+          <span className="wp-sub">Plan to watch it and receive a reminder.</span>
+        </div>
+        <Button
+          variant="primary"
+          size="lg"
+          block
+          loading={saving}
+          onClick={() => {
+            setSaving(true)
+            setTimeout(() => {
+              wl.add(id)
+              setSaving(false)
+            }, 350)
+          }}
+        >
+          {saving ? 'Saving…' : 'Add to Watchlist'}
+        </Button>
+      </div>
+    )
+  }
+
+  return (
+    <button className="nav-row" onClick={onManage} aria-label="Manage this match in your Watchlist">
+      <span className="nr-body">
+        <span className="nr-title">You plan to watch this match</span>
+        <span className="nr-sub">
+          <span className="nr-ic">{reminder ? Icon.Bell : Icon.BellOff}</span>
+          Saved to Watchlist · {reminder ? 'Reminder on' : 'Reminder off'}
+        </span>
+      </span>
+      <span className="nr-chev">{Icon.Chevron}</span>
+    </button>
   )
 }
 

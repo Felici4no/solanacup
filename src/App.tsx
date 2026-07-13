@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { BRAND, BRAND_SUB, todaysChapter } from './data'
+import { useEffect, useState } from 'react'
+import { BRAND, BRAND_SUB, todaysChapter, comingUp } from './data'
 import { pulseMatch } from './pulse'
 import { Icon } from './ui'
 import { team } from './assets'
 import { AmbientBackground } from './AmbientBackground'
 import { NavContext } from './nav'
+import { watchlistStore, matchId } from './watchlist'
 import type { MatchData } from './MatchCover'
 import Home from './pages/Home'
 import MatchPulse from './pages/MatchPulse'
@@ -12,10 +13,18 @@ import Search from './pages/Search'
 import Archive from './pages/Archive'
 import Profile from './pages/Profile'
 import Watchlist from './pages/Watchlist'
+import WatchlistMatch from './pages/WatchlistMatch'
 import MatchDetail from './pages/MatchDetail'
+import ProfileEdit from './pages/ProfileEdit'
+import Settings from './pages/Settings'
 
 type Tab = 'home' | 'pulse' | 'search' | 'archive' | 'profile'
-type Overlay = { type: 'match'; match: MatchData } | { type: 'watchlist' }
+type Overlay =
+  | { type: 'match'; match: MatchData }
+  | { type: 'watchlist' }
+  | { type: 'watchlistMatch'; match: MatchData }
+  | { type: 'profileEdit' }
+  | { type: 'settings' }
 
 // Navigation: Home · Pulse · Pesquisar (emphasised) · Archive · Perfil
 const TABS: { id: Tab; label: string; icon: JSX.Element; emph?: boolean }[] = [
@@ -29,12 +38,14 @@ const TABS: { id: Tab; label: string; icon: JSX.Element; emph?: boolean }[] = [
 type Ambient = { colors: [string, string, string?]; intensity: number }
 
 function ambientFor(tab: Tab, overlay?: Overlay): Ambient {
-  if (overlay?.type === 'match') {
+  if (overlay?.type === 'match' || overlay?.type === 'watchlistMatch') {
     const h = team(overlay.match.home).colors[0]
     const a = team(overlay.match.away).colors[0]
     return { colors: [h, a, h], intensity: 1.1 }
   }
   if (overlay?.type === 'watchlist') return { colors: ['#3a4a5e', '#4a2f3a'], intensity: 0.7 }
+  if (overlay?.type === 'profileEdit' || overlay?.type === 'settings')
+    return { colors: [team('saopaulo').colors[0], '#2a2430'], intensity: 0.5 }
   switch (tab) {
     case 'home':
       return { colors: [team(todaysChapter.home).colors[0], team(todaysChapter.away).colors[0]], intensity: 0.9 }
@@ -53,10 +64,19 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   const [stack, setStack] = useState<Overlay[]>([])
 
+  // Curated upcoming matches start saved (persisted, seeded once).
+  useEffect(() => {
+    watchlistStore.seed([todaysChapter, ...comingUp.map((c) => c.match)].map(matchId))
+  }, [])
+
   const overlay = stack[stack.length - 1]
+  const push = (o: Overlay) => setStack((s) => [...s, o])
   const nav = {
-    openMatch: (match: MatchData) => setStack((s) => [...s, { type: 'match', match }]),
-    openWatchlist: () => setStack((s) => [...s, { type: 'watchlist' }]),
+    openMatch: (match: MatchData) => push({ type: 'match', match }),
+    openWatchlist: () => push({ type: 'watchlist' }),
+    openWatchlistMatch: (match: MatchData) => push({ type: 'watchlistMatch', match }),
+    openProfileEdit: () => push({ type: 'profileEdit' }),
+    openSettings: () => push({ type: 'settings' }),
     back: () => setStack((s) => s.slice(0, -1)),
   }
   const goTab = (t: Tab) => {
@@ -66,6 +86,7 @@ export default function App() {
 
   const amb = ambientFor(tab, overlay)
   const viewKey = overlay ? `${overlay.type}-${stack.length}` : tab
+  const onProfile = !overlay && tab === 'profile'
 
   return (
     <NavContext.Provider value={nav}>
@@ -89,16 +110,19 @@ export default function App() {
           </div>
           <button
             className="profile-btn"
-            aria-label={!overlay && tab === 'profile' ? 'Settings' : 'Profile and settings'}
-            onClick={() => goTab('profile')}
+            aria-label={onProfile ? 'Settings' : 'Profile'}
+            onClick={() => (onProfile ? nav.openSettings() : goTab('profile'))}
           >
-            {!overlay && tab === 'profile' ? Icon.Gear : Icon.ProfileSmall}
+            {onProfile ? Icon.Gear : Icon.ProfileSmall}
           </button>
         </header>
 
         <main key={viewKey}>
           {overlay?.type === 'match' && <MatchDetail match={overlay.match} />}
           {overlay?.type === 'watchlist' && <Watchlist />}
+          {overlay?.type === 'watchlistMatch' && <WatchlistMatch match={overlay.match} />}
+          {overlay?.type === 'profileEdit' && <ProfileEdit />}
+          {overlay?.type === 'settings' && <Settings />}
           {!overlay && tab === 'home' && <Home />}
           {!overlay && tab === 'pulse' && <MatchPulse />}
           {!overlay && tab === 'search' && <Search />}

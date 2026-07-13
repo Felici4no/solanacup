@@ -156,4 +156,22 @@ export const Icon = {
       <path d="M12 7.5V12l3 2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   ),
+  Bell: (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9a6 6 0 0 1 12 0c0 4 1.2 5.5 2 6.3H4c.8-.8 2-2.3 2-6.3Z" />
+      <path d="M10 19a2 2 0 0 0 4 0" />
+    </svg>
+  ),
+  BellOff: (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9a6 6 0 0 1 9.6-4.8M18 9c0 4 1.2 5.5 2 6.3H8" />
+      <path d="M10 19a2 2 0 0 0 4 0" />
+      <path d="M4 3l16 18" />
+    </svg>
+  ),
+  Check: (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12.5l4.5 4.5L19 7" />
+    </svg>
+  ),
 }

@@ -1,8 +1,10 @@
-import { useState } from 'react'
 import { watchlist, type WatchMatch } from '../data'
 import { MatchCover } from '../MatchCover'
 import { competition, team } from '../assets'
 import { useNav } from '../nav'
+import { useWatchlist, matchId } from '../watchlist'
+import { Button } from '../Button'
+import { Icon } from '../ui'
 
 const GROUPS: { key: keyof typeof watchlist; title: string }[] = [
   { key: 'today', title: 'Today' },
@@ -41,8 +43,11 @@ export default function Watchlist() {
 }
 
 function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
-  const { openMatch } = useNav()
-  const [reminder, setReminder] = useState(true)
+  const { openMatch, openWatchlistMatch } = useNav()
+  const wl = useWatchlist()
+  const id = matchId(w.match)
+  const reminder = wl.reminderOn(id)
+  const watching = wl.isWatching(id)
   const h = team(w.match.home)
   const a = team(w.match.away)
   const comp = competition(w.match.competition)
@@ -75,13 +80,32 @@ function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
         )}
         <div className="wi-actions">
           {past ? (
-            <button className="wi-btn primary" onClick={() => openMatch(w.match)}>Write the memory</button>
+            <Button variant="primary" size="sm" onClick={() => openMatch(w.match)}>
+              Write the memory
+            </Button>
           ) : (
             <>
-              <button className="wi-btn primary">I’m Watching</button>
-              <button className="wi-btn" aria-pressed={reminder} onClick={() => setReminder(!reminder)}>
-                {reminder ? '◉ Reminder on' : '○ Reminder'}
-              </button>
+              <Button
+                variant={watching ? 'secondary' : 'primary'}
+                size="sm"
+                iconStart={watching ? Icon.Check : undefined}
+                aria-pressed={watching}
+                onClick={() => wl.setWatching(id, !watching)}
+              >
+                {watching ? 'Watching' : 'I’m Watching'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                aria-pressed={reminder}
+                iconStart={reminder ? Icon.Bell : Icon.BellOff}
+                onClick={() => wl.toggleReminder(id)}
+              >
+                {reminder ? 'Reminder on' : 'Reminder off'}
+              </Button>
+              <Button variant="text" size="sm" iconEnd={Icon.Chevron} onClick={() => openWatchlistMatch(w.match)}>
+                Manage
+              </Button>
             </>
           )}
         </div>
