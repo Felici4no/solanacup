@@ -5,8 +5,9 @@ import { StadiumVisual } from '../visuals'
 import { Crest, team } from '../assets'
 import { useNav } from '../nav'
 import { useWatchlist, matchId } from '../watchlist'
+import { useAction, persistMemory } from '../repository'
 import { Button } from '../Button'
-import { Icon } from '../ui'
+import { Icon, ActionError } from '../ui'
 import {
   MatchRating,
   CommunityPulse,
@@ -119,6 +120,7 @@ export default function MatchDetail({ match }: { match: MatchData }) {
           ) : phase === 'post' && editing ? (
             <CompleteMemoryEditor
               moments={D.moments.map((m) => ({ min: m.min, type: m.type, player: m.player }))}
+              persist={persistMemory}
               onSave={(m) => {
                 setMemory(m)
                 setEditing(false)
@@ -226,7 +228,7 @@ function WatchlistAction({ match, onManage }: { match: MatchData; onManage: () =
   const id = matchId(match)
   const saved = wl.isSaved(id)
   const reminder = wl.reminderOn(id)
-  const [saving, setSaving] = useState(false)
+  const save = useAction(() => wl.add(id))
 
   if (!saved) {
     return (
@@ -235,21 +237,12 @@ function WatchlistAction({ match, onManage }: { match: MatchData; onManage: () =
           <span className="wp-title">Add this match to your Watchlist</span>
           <span className="wp-sub">Plan to watch it and receive a reminder.</span>
         </div>
-        <Button
-          variant="primary"
-          size="lg"
-          block
-          loading={saving}
-          onClick={() => {
-            setSaving(true)
-            setTimeout(() => {
-              wl.add(id)
-              setSaving(false)
-            }, 350)
-          }}
-        >
-          {saving ? 'Saving…' : 'Add to Watchlist'}
+        <Button variant="primary" size="lg" block loading={save.pending} onClick={() => save.run()}>
+          {save.pending ? 'Saving…' : 'Add to Watchlist'}
         </Button>
+        {save.failed && (
+          <ActionError message="Couldn’t save this match to your Watchlist." onRetry={save.retry} />
+        )}
       </div>
     )
   }

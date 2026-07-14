@@ -3,8 +3,9 @@ import { MatchCover } from '../MatchCover'
 import { competition, team } from '../assets'
 import { useNav } from '../nav'
 import { useWatchlist, matchId } from '../watchlist'
+import { useAction } from '../repository'
 import { Button } from '../Button'
-import { Icon } from '../ui'
+import { Icon, ActionError } from '../ui'
 
 const GROUPS: { key: keyof typeof watchlist; title: string }[] = [
   { key: 'today', title: 'Today' },
@@ -48,6 +49,8 @@ function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
   const id = matchId(w.match)
   const reminder = wl.reminderOn(id)
   const watching = wl.isWatching(id)
+  const watch = useAction(() => wl.setWatching(id, !watching))
+  const rem = useAction(() => wl.toggleReminder(id))
   const h = team(w.match.home)
   const a = team(w.match.away)
   const comp = competition(w.match.competition)
@@ -90,7 +93,8 @@ function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
                 size="sm"
                 iconStart={watching ? Icon.Check : undefined}
                 aria-pressed={watching}
-                onClick={() => wl.setWatching(id, !watching)}
+                loading={watch.pending}
+                onClick={() => watch.run()}
               >
                 {watching ? 'Watching' : 'I’m Watching'}
               </Button>
@@ -98,8 +102,9 @@ function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
                 variant="ghost"
                 size="sm"
                 aria-pressed={reminder}
+                loading={rem.pending}
                 iconStart={reminder ? Icon.Bell : Icon.BellOff}
-                onClick={() => wl.toggleReminder(id)}
+                onClick={() => rem.run()}
               >
                 {reminder ? 'Reminder on' : 'Reminder off'}
               </Button>
@@ -109,6 +114,13 @@ function WatchItem({ w, past }: { w: WatchMatch; past?: boolean }) {
             </>
           )}
         </div>
+        {watch.failed && <ActionError message="Couldn’t update this match." onRetry={watch.retry} />}
+        {rem.failed && (
+          <ActionError
+            message={`Couldn’t update the reminder. It is still ${reminder ? 'on' : 'off'}.`}
+            onRetry={rem.retry}
+          />
+        )}
       </div>
     </div>
   )

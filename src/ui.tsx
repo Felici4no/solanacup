@@ -41,6 +41,29 @@ export function SectionHead({
 }
 
 /* Thin-line iconography (1px) */
+/* Contextual, accessible error with a recovery action. Local component
+   state is the primary feedback — this is not a toast. */
+export function ActionError({
+  message,
+  onRetry,
+  retryLabel = 'Try again',
+}: {
+  message: string
+  onRetry?: () => void
+  retryLabel?: string
+}) {
+  return (
+    <div className="action-error" role="alert">
+      <span className="ae-msg">{message}</span>
+      {onRetry && (
+        <button className="ae-retry" onClick={onRetry}>
+          {retryLabel}
+        </button>
+      )}
+    </div>
+  )
+}
+
 export const Icon = {
   Home: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">

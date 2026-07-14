@@ -2,8 +2,9 @@ import { MatchCover, type MatchData } from '../MatchCover'
 import { competition, team } from '../assets'
 import { useNav } from '../nav'
 import { useWatchlist, matchId } from '../watchlist'
+import { useAction } from '../repository'
 import { Button } from '../Button'
-import { Icon } from '../ui'
+import { Icon, ActionError } from '../ui'
 
 /* /watchlist/:matchId — manage a single saved match. */
 export default function WatchlistMatch({ match }: { match: MatchData }) {
@@ -15,6 +16,9 @@ export default function WatchlistMatch({ match }: { match: MatchData }) {
   const h = team(match.home)
   const a = team(match.away)
   const comp = competition(match.competition)
+  const rem = useAction(() => wl.toggleReminder(id))
+  const removal = useAction(() => wl.remove(id))
+  const save = useAction(() => wl.add(id))
 
   return (
     <div className="page">
@@ -47,14 +51,24 @@ export default function WatchlistMatch({ match }: { match: MatchData }) {
               size="md"
               block
               aria-pressed={reminder}
+              loading={rem.pending}
               iconStart={reminder ? Icon.Bell : Icon.BellOff}
-              onClick={() => wl.toggleReminder(id)}
+              onClick={() => rem.run()}
             >
               {reminder ? 'Turn Reminder Off' : 'Turn Reminder On'}
             </Button>
-            <Button variant="destructive" size="md" block onClick={() => wl.remove(id)}>
+            {rem.failed && (
+              <ActionError
+                message={`Couldn’t update the reminder. It is still ${reminder ? 'on' : 'off'}.`}
+                onRetry={rem.retry}
+              />
+            )}
+            <Button variant="destructive" size="md" block loading={removal.pending} onClick={() => removal.run()}>
               Remove from Watchlist
             </Button>
+            {removal.failed && (
+              <ActionError message="Couldn’t remove this match. It is still saved." onRetry={removal.retry} />
+            )}
           </div>
         </>
       ) : (
@@ -63,9 +77,12 @@ export default function WatchlistMatch({ match }: { match: MatchData }) {
             <span className="wp-title">Add this match to your Watchlist</span>
             <span className="wp-sub">Plan to watch it and receive a reminder.</span>
           </div>
-          <Button variant="primary" size="lg" block onClick={() => wl.add(id)}>
-            Add to Watchlist
+          <Button variant="primary" size="lg" block loading={save.pending} onClick={() => save.run()}>
+            {save.pending ? 'Saving…' : 'Add to Watchlist'}
           </Button>
+          {save.failed && (
+            <ActionError message="Couldn’t save this match to your Watchlist." onRetry={save.retry} />
+          )}
           <div style={{ marginTop: 10 }}>
             <Button variant="text" size="md" onClick={back}>
               Back

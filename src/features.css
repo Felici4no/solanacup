@@ -791,6 +791,17 @@
 /* bookmark pressed */
 .mm-bookmark.on { color: var(--accent); }
 
+/* ---- Recoverable action error ---- */
+.action-error { display: flex; align-items: center; gap: 12px; margin-top: 10px;
+  padding: 10px 14px; border-radius: 10px; border: 1px solid rgba(224,122,122,0.4);
+  background: rgba(224,122,122,0.08); animation: rise 200ms var(--easing); }
+.action-error .ae-msg { flex: 1; font-size: 0.86rem; color: #e8a3a3; line-height: 1.35; }
+.action-error .ae-retry { flex: 0 0 auto; min-height: 36px; padding: 6px 14px; border-radius: 100px;
+  border: 1px solid rgba(224,122,122,0.55); background: transparent; color: #e8a3a3;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 150ms var(--easing); }
+.action-error .ae-retry:hover { background: rgba(224,122,122,0.14); color: #f0baba; }
+.action-error .ae-retry:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px #e07a7a; }
+
 /* ---- Forms (profile edit) ---- */
 .form { display: flex; flex-direction: column; gap: 16px; }
 .field { display: flex; flex-direction: column; gap: 7px; }
