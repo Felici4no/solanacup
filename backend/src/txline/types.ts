@@ -18,7 +18,7 @@ export type Fixture = {
   Participant1IsHome: boolean
 }
 
-/** Soccer event payload inside a Scores record (subset relevant to Vez). */
+/** Soccer event payload inside a Scores record (subset relevant to GAM3BOOK). */
 export type SoccerData = {
   Action?: string
   Color?: string

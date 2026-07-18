@@ -1,9 +1,9 @@
 {
-  "name": "vez-backend",
+  "name": "gam3book-backend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Vez backend — TxLINE World Cup live data + VEZ fan token on Solana",
+  "description": "GAM3BOOK backend — TxLINE World Cup live data + G3B fan token on Solana",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",

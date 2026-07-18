@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BRAND, BRAND_SUB, todaysChapter } from './data'
+import { BRAND, BRAND_SUB, BRAND_ACCENT, todaysChapter } from './data'
 import { pulseMatch } from './pulse'
 import { Icon } from './ui'
 import { team } from './assets'
@@ -84,7 +84,11 @@ export default function App() {
             <div className="header-spacer" aria-hidden />
           )}
           <div className="wm">
-            <span className="wm-name">{BRAND}</span>
+            <span className="wm-name">
+              {BRAND.split(BRAND_ACCENT)[0]}
+              <span className="dot">{BRAND_ACCENT}</span>
+              {BRAND.split(BRAND_ACCENT)[1]}
+            </span>
             <span className="wm-sub">{BRAND_SUB}</span>
           </div>
           <button

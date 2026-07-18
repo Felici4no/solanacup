@@ -1,9 +1,9 @@
-# Vez Backend — TxLINE World Cup + VEZ Fan Token
+# GAM3BOOK Backend — TxLINE World Cup + G3B Fan Token
 
-Backend do Vez para o **World Cup Hackathon** (Solana × TxODDS TxLINE), trilha
-**Consumer & Fan Experiences**. Liga o app de memórias esportivas a dados
-**reais e ao vivo da Copa** e transforma o ritual *"I'm Watching"* em
-recompensas de fan token **VEZ** na Solana.
+Backend do GAM3BOOK para o **World Cup Hackathon** (Solana × TxODDS TxLINE), trilha
+**Consumer & Fan Experiences**. O **diário social dos esportes ao vivo**: cada evento
+que o fã acompanha vira um **capítulo verificável** da sua história — dados
+**reais da Copa** via TxLINE e propriedade digital na Solana (fan token **G3B**).
 
 Arquitetura, protocolo e decisões: **[PLAN.md](PLAN.md)**.
 Fonte da verdade: `docs/txline-openapi.yaml` + `docs/reference/` (scripts
@@ -38,18 +38,18 @@ endereço impresso via faucet (<https://pinestake.com/en/faucet>) e rode
 5. Dados com `Authorization: Bearer {jwt}` + `X-Api-Token`; em 401 renova o
    JWT e repete. Streams por SSE com retomada via `Last-Event-ID`.
 
-## API para o frontend Vez
+## API para o frontend GAM3BOOK
 
 | Rota | Descrição |
 |---|---|
-| `GET /health` | rede, host TxLINE, token ativo, mint VEZ |
+| `GET /health` | rede, host TxLINE, token ativo, mint G3B |
 | `GET /api/wc/fixtures` | jogos da Copa (competitionId 72), normalizados |
 | `GET /api/wc/matches/:fixtureId` | placar + eventos (gol/cartão/minuto) p/ o Match Pulse |
 | `GET /api/wc/stream?fixtureId=` | SSE ao vivo re-broadcast, eventos normalizados |
-| `GET /api/fan/token` | mint, decimais e tabela de recompensas do VEZ |
-| `POST /api/fan/checkin` | `{wallet, fixtureId}` → verifica **ao vivo** na TxLINE → 10 VEZ |
-| `POST /api/fan/claim-goals` | bônus de 5 VEZ por gol desde o check-in |
-| `GET /api/fan/balance/:wallet` | saldo VEZ |
+| `GET /api/fan/token` | mint, decimais e tabela de recompensas do G3B |
+| `POST /api/fan/checkin` | `{wallet, fixtureId}` → verifica **ao vivo** na TxLINE → 10 G3B |
+| `POST /api/fan/claim-goals` | bônus de 5 G3B por gol desde o check-in |
+| `GET /api/fan/balance/:wallet` | saldo G3B |
 
 ## Status
 

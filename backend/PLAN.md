@@ -1,19 +1,21 @@
-# Vez Backend — TxLINE World Cup + VEZ Fan Token
+# GAM3BOOK Backend — TxLINE World Cup + G3B Fan Token
 
 **Hackathon:** World Cup Hackathon (Superteam Brasil) · Track: **Consumer & Fan Experiences**
-**Stack alvo:** TxODDS TxLINE (dados ao vivo da Copa, on-chain verificáveis) + Solana (devnet) + fan token **VEZ**.
+**Stack alvo:** TxODDS TxLINE (dados ao vivo da Copa, on-chain verificáveis) + Solana (devnet) + fan token **G3B**.
 
 ## Tese
 
-O Vez transforma partidas em memórias. Este backend liga o produto ao mundo real:
+O GAM3BOOK é o **diário social dos esportes ao vivo**: cada evento que o fã acompanha vira
+um **capítulo verificável** da sua história. Este backend entrega as duas metades disso:
 
 1. **Dados ao vivo da Copa** via TxLINE (free tier, `competitionId = 72`) — fixtures, placares,
    eventos (gols, cartões) e odds, tudo canonicalizado e provável on-chain.
-2. **Fan token VEZ** (SPL, devnet) — o ritual "I'm Watching" vira **check-in on-chain**:
+2. **Fan token G3B** (SPL, devnet) — o ritual "I'm Watching" vira **check-in on-chain**:
    o fã que está assistindo uma partida *realmente ao vivo* (verificado pela TxLINE)
-   ganha VEZ; um gol durante o check-in paga bônus. Memórias completadas = coleção.
+   ganha G3B; um gol durante o check-in paga bônus. Memórias completadas = coleção.
 
-> A partida pertence à história (e à chain). A memória — e o token — pertencem ao fã.
+> Dados em tempo real da TxLINE + propriedade digital na Solana.
+> A partida pertence à história. O capítulo — e o token — pertencem ao fã.
 
 ## Fonte da verdade (seguida à risca)
 
@@ -60,17 +62,17 @@ backend/
     solana/
       wallet.ts              # keypair via arquivo (ANCHOR_WALLET) ou env
       subscribe.ts           # free-tier subscribe (espelho fiel do users.ts oficial)
-      fantoken.ts            # mint VEZ + recompensas (devnet)
+      fantoken.ts            # mint G3B + recompensas (devnet)
     services/
-      worldcup.ts            # cache de fixtures WC, normalização Scores→eventos Vez, estado live
+      worldcup.ts            # cache de fixtures WC, normalização Scores→eventos GAM3BOOK, estado live
       rewards.ts             # check-in "I'm Watching" verificado + bônus de gol
-    api/server.ts            # Express: REST + SSE re-broadcast p/ o frontend Vez
+    api/server.ts            # Express: REST + SSE re-broadcast p/ o frontend GAM3BOOK
     index.ts                 # boot: auth → token (cache .txline/token.json) → server
   scripts/activate.ts        # one-shot: subscribe devnet + ativação (imprime API token)
   test/                      # vitest: mensagem de ativação, normalizador, epochDay
 ```
 
-### API para o frontend Vez
+### API para o frontend GAM3BOOK
 
 | Rota | Função |
 |---|---|
@@ -78,16 +80,16 @@ backend/
 | `GET /api/wc/fixtures` | fixtures da Copa (norm.: id, times, kickoff, status) |
 | `GET /api/wc/matches/:fixtureId` | placar + eventos normalizados (gol/cartão/minuto) p/ Match Pulse |
 | `GET /api/wc/stream?fixtureId=` | SSE re-broadcast do score stream TxLINE |
-| `POST /api/fan/checkin` | `{ wallet, fixtureId }` → verifica live na TxLINE → transfere VEZ |
-| `GET /api/fan/balance/:wallet` | saldo VEZ do fã |
-| `GET /api/fan/token` | mint address + metadados do VEZ |
+| `POST /api/fan/checkin` | `{ wallet, fixtureId }` → verifica live na TxLINE → transfere G3B |
+| `GET /api/fan/balance/:wallet` | saldo G3B do fã |
+| `GET /api/fan/token` | mint address + metadados do G3B |
 
-### Recompensas VEZ (devnet)
+### Recompensas G3B (devnet)
 
-- Check-in em partida **ao vivo** (gameState válido no snapshot TxLINE): **10 VEZ**.
-- Gol do time durante check-in ativo (score stream): **+5 VEZ** (bônus por gol).
+- Check-in em partida **ao vivo** (gameState válido no snapshot TxLINE): **10 G3B**.
+- Gol do time durante check-in ativo (score stream): **+5 G3B** (bônus por gol).
 - 1 check-in por wallet por fixture (anti-abuso simples em memória/arquivo).
-- Mint criado no boot se `VEZ_MINT` ausente; autoridade = wallet do backend.
+- Mint criado no boot se `G3B_MINT` ausente; autoridade = wallet do backend.
 
 ## Decisões
 

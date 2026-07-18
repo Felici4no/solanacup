@@ -713,10 +713,13 @@
   .mp-left { position: sticky; top: 76px; }
 }
 
-/* ============================================================ VEZ — wordmark, split posters, fixed nav */
+/* ============================================================ GAM3BOOK — wordmark, split posters, fixed nav */
 .wm { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 .wm-name { font-family: var(--serif); font-weight: 380; font-size: 1.58rem; line-height: 1; color: var(--ink); letter-spacing: 0.01em; }
-.wm-sub { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.42em; text-transform: uppercase; color: var(--accent-2); opacity: 0.85; padding-left: 0.42em; }
+/* Tracking scales down with the viewport so the longer tagline never overflows at 320px. */
+.wm-sub { font-size: 0.55rem; font-weight: 600; letter-spacing: clamp(0.12em, 0.9vw, 0.26em);
+  text-transform: uppercase; color: var(--accent-2); opacity: 0.85; padding-left: 0.2em;
+  white-space: nowrap; }
 
 /* split poster */
 .splitcover { position: relative; overflow: hidden; border-radius: var(--r-cover); border: 1px solid rgba(255,255,255,0.1);
@@ -830,7 +833,7 @@
   background: rgba(19, 18, 23, 0.95); border: 1px solid rgba(217, 164, 65, 0.5); box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45); }
 .nav-item.emph svg { width: 23px; height: 23px; }
 
-/* ============================================================ PERFIL (Vez) */
+/* ============================================================ PERFIL (GAM3BOOK) */
 .pf-page { padding-bottom: 150px; }
 
 /* 1 — identidade */
@@ -913,3 +916,4 @@
 .streak-title { font-family: var(--serif); font-size: 1.16rem; color: var(--ink); }
 .streak-sub { font-size: 0.85rem; color: var(--ink-3); }
 .streak-chev { color: var(--accent-2); flex: 0 0 auto; display: inline-flex; }
+
