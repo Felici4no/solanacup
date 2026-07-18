@@ -38,40 +38,40 @@ const E = pulseMatch.events
 const S = pulseMatch.sequences
 
 describe('sequence grouping', () => {
-  it('collects the São Paulo pressure sequence (78–84)', () => {
-    const inRange = eventsInRange(E, 78, 84)
-    expect(inRange.map((e) => e.id)).toEqual(['e78', 'e79', 'e80', 'e81', 'e82', 'e83', 'e84'])
+  it('collects the Argentina siege sequence (82–85)', () => {
+    const inRange = eventsInRange(E, 82, 85)
+    expect(inRange.map((e) => e.id)).toEqual(['e82', 'e83', 'e84', 'e85'])
   })
 
   it('counts event types within a sequence', () => {
-    const stats = sequenceStats(eventsInRange(E, 78, 84))
-    expect(stats.shot).toBe(3)
+    const stats = sequenceStats(eventsInRange(E, 82, 85))
+    expect(stats.shot).toBe(1)
     expect(stats.save).toBe(1)
-    expect(stats.corner).toBe(2)
+    expect(stats.chance).toBe(1)
     expect(stats.goal).toBe(1)
     expect(stats.card).toBe(0)
   })
 
   it('formats stats as readable, singular/plural aware fragments', () => {
-    expect(formatStats(sequenceStats(eventsInRange(E, 78, 84)))).toEqual([
-      '3 shots', '1 save', '2 corners', '1 goal',
+    expect(formatStats(sequenceStats(eventsInRange(E, 82, 85)))).toEqual([
+      '1 shot', '1 save', '1 chance', '1 goal',
     ])
   })
 
   it('maps a minute to the sequence that contains it', () => {
-    expect(findSequenceForMinute(82, S)?.id).toBe('sp-pressure')
-    expect(findSequenceForMinute(38, S)?.id).toBe('river-strike')
+    expect(findSequenceForMinute(83, S)?.id).toBe('arg-siege')
+    expect(findSequenceForMinute(38, S)?.id).toBe('yellow-spell')
   })
 
   it('returns null for minutes outside any sequence', () => {
     expect(findSequenceForMinute(20, S)).toBeNull()
-    expect(findSequenceForMinute(87, S)).toBeNull() // the winner stands alone
+    expect(findSequenceForMinute(90, S)).toBeNull() // the winner stands alone
   })
 
   it('finds the nearest event to an arbitrary minute (drag/scrub)', () => {
     expect(nearestEvent(50, E).id).toBe('e51')
-    expect(nearestEvent(85, E).id).toBe('e84')
-    expect(nearestEvent(0, E).id).toBe('e12')
+    expect(nearestEvent(87, E).id).toBe('e85')
+    expect(nearestEvent(0, E).id).toBe('e36')
   })
 })
 
@@ -86,19 +86,19 @@ describe('timeline layout (de-collision)', () => {
   })
   it('orders positions by minute', () => {
     const ids = layoutEvents(E).positions.map((p) => p.id)
-    expect(ids[0]).toBe('e12')
-    expect(ids[ids.length - 1]).toBe('e87')
+    expect(ids[0]).toBe('e36')
+    expect(ids[ids.length - 1]).toBe('e90')
   })
 })
 
 describe('moment stepping', () => {
   it('moves forward and backward in minute order', () => {
-    expect(stepMoment(E, 'e84', 1)).toBe('e87')
-    expect(stepMoment(E, 'e84', -1)).toBe('e83')
+    expect(stepMoment(E, 'e85', 1)).toBe('e90')
+    expect(stepMoment(E, 'e85', -1)).toBe('e84')
   })
   it('clamps at the ends (no wrap)', () => {
-    expect(stepMoment(E, 'e87', 1)).toBe('e87')
-    expect(stepMoment(E, 'e12', -1)).toBe('e12')
+    expect(stepMoment(E, 'e90', 1)).toBe('e90')
+    expect(stepMoment(E, 'e36', -1)).toBe('e36')
   })
 })
 
@@ -129,12 +129,12 @@ describe('accessibility labels', () => {
     expect(ordinal(87)).toBe('87th')
   })
   it('builds a full event label', () => {
-    const winner = E.find((e) => e.id === 'e87')!
-    expect(eventLabel(winner)).toBe('87th minute, goal by Calleri, community impact 4.8 out of 5')
+    const winner = E.find((e) => e.id === 'e90')!
+    expect(eventLabel(winner)).toBe('90th minute, goal by Lautaro Martínez, community impact 4.9 out of 5')
   })
   it('describes cards with their colour', () => {
-    const card = E.find((e) => e.id === 'e12')!
-    expect(eventLabel(card)).toBe('12th minute, yellow card by Rivero, community impact 2.3 out of 5')
+    const card = E.find((e) => e.id === 'e41')!
+    expect(eventLabel(card)).toBe('41st minute, yellow card by Lisandro Martínez, community impact 2.7 out of 5')
   })
 })
 
@@ -148,12 +148,12 @@ describe('annotation model', () => {
     expect(a.author).toBe('You')
   })
   it('can be explicitly shared with the community', () => {
-    const a = createAnnotation({ anchorType: 'event', minute: 84, eventId: 'e84', text: 'x' })
+    const a = createAnnotation({ anchorType: 'event', minute: 85, eventId: 'e85', text: 'x' })
     expect(a.visibility).toBe('private')
     expect(shareWithCommunity(a).visibility).toBe('community')
   })
   it('promotes a live annotation into the permanent memory', () => {
-    const live = pulseAnnotations.find((a) => a.id === 'an-mine84')!
+    const live = pulseAnnotations.find((a) => a.id === 'an-mine85')!
     expect(live.keptInMemory).toBeUndefined()
     expect(promoteToMemory(live).keptInMemory).toBe(true)
   })
@@ -161,9 +161,9 @@ describe('annotation model', () => {
 
 describe('anchors', () => {
   it('resolves an event anchor when the cursor sits on an event', () => {
-    const a = resolveAnchor(84, false, E, S)
+    const a = resolveAnchor(85, false, E, S)
     expect(a.type).toBe('event')
-    expect(a.type === 'event' && a.eventId).toBe('e84')
+    expect(a.type === 'event' && a.eventId).toBe('e85')
   })
   it('resolves a time anchor when no event exists at that minute', () => {
     const a = resolveAnchor(74, false, E, S)
@@ -171,25 +171,25 @@ describe('anchors', () => {
     expect(a.minute).toBe(74)
   })
   it('resolves a sequence anchor when the range is focused', () => {
-    const a = resolveAnchor(81, true, E, S)
+    const a = resolveAnchor(83, true, E, S)
     expect(a.type).toBe('sequence')
-    expect(a.type === 'sequence' && a.sequenceId).toBe('sp-pressure')
-    expect(a.type === 'sequence' && a.endMinute).toBe(84)
+    expect(a.type === 'sequence' && a.sequenceId).toBe('arg-siege')
+    expect(a.type === 'sequence' && a.endMinute).toBe(85)
   })
   it('labels each anchor type in human language', () => {
-    expect(anchorLabel(resolveAnchor(84, false, E, S))).toBe('84’ · Goal · Luciano')
+    expect(anchorLabel(resolveAnchor(85, false, E, S))).toBe('85’ · Goal · Enzo Fernández')
     expect(anchorLabel(resolveAnchor(74, false, E, S))).toBe('74th minute')
-    expect(anchorLabel(resolveAnchor(81, true, E, S))).toBe('São Paulo pressure · 78’–84’')
+    expect(anchorLabel(resolveAnchor(83, true, E, S))).toBe('Argentina siege · 82’–85’')
   })
 })
 
 describe('annotationsForAnchor', () => {
   it('event anchor gathers event-anchored and same-minute time notes', () => {
-    const anchor = resolveAnchor(84, false, E, S)
+    const anchor = resolveAnchor(85, false, E, S)
     const ids = annotationsForAnchor(pulseAnnotations, anchor).map((a) => a.id)
-    expect(ids).toContain('an-84a')
-    expect(ids).toContain('an-mine84')
-    expect(ids).not.toContain('an-87a')
+    expect(ids).toContain('an-85a')
+    expect(ids).toContain('an-mine85')
+    expect(ids).not.toContain('an-90a')
   })
   it('time anchor gathers only that minute’s time notes', () => {
     const anchor: Anchor = { type: 'time', minute: 74 }
@@ -197,9 +197,9 @@ describe('annotationsForAnchor', () => {
     expect(ids).toEqual(['an-74'])
   })
   it('sequence anchor gathers everything inside the range', () => {
-    const anchor = resolveAnchor(80, true, E, S) // sp-pressure 78–84
+    const anchor = resolveAnchor(83, true, E, S) // arg-siege 82–85
     const ids = annotationsForAnchor(pulseAnnotations, anchor).map((a) => a.id)
-    expect(ids).toEqual(expect.arrayContaining(['an-seq', 'an-81', 'an-84a', 'an-mine84']))
+    expect(ids).toEqual(expect.arrayContaining(['an-seq', 'an-84', 'an-85a', 'an-mine85']))
     expect(ids).not.toContain('an-74')
   })
 })
@@ -208,11 +208,11 @@ describe('cursor movement', () => {
   it('steps to the next / previous important event', () => {
     expect(stepImportant(E, 83, 1)).toBe(84)
     expect(stepImportant(E, 84, -1)).toBe(83)
-    expect(stepImportant(E, 40, 1)).toBe(51)
+    expect(stepImportant(E, 41, 1)).toBe(51)
   })
   it('clamps at the ends', () => {
-    expect(stepImportant(E, 87, 1)).toBe(87)
-    expect(stepImportant(E, 12, -1)).toBe(12)
+    expect(stepImportant(E, 90, 1)).toBe(90)
+    expect(stepImportant(E, 36, -1)).toBe(36)
   })
   it('clampMinute rounds and bounds', () => {
     expect(clampMinute(83.4, 0, 90)).toBe(83)
@@ -240,22 +240,22 @@ describe('community density', () => {
 describe('two-level timeline helpers', () => {
   it('overview keeps only the major (goal) events', () => {
     const majors = majorEvents(E)
-    expect(majors.map((e) => e.minute)).toEqual([40, 84, 87])
+    expect(majors.map((e) => e.minute)).toEqual([55, 85, 90])
     expect(majors.every((e) => e.type === 'goal')).toBe(true)
   })
   it('expands a focused range for a clustered sequence', () => {
-    const f = focusedRange(81, S, E)
-    expect(f?.sequenceId).toBe('sp-pressure')
-    expect(f?.start).toBe(78)
-    expect(f?.end).toBe(84)
+    const f = focusedRange(83, S, E)
+    expect(f?.sequenceId).toBe('arg-siege')
+    expect(f?.start).toBe(82)
+    expect(f?.end).toBe(85)
   })
   it('does not expand a focused range in a quiet minute', () => {
     expect(focusedRange(20, S, E)).toBeNull()
   })
   it('asks a question only when meaningful', () => {
-    expect(shouldAskQuestion(resolveAnchor(80, true, E, S))).toBe(true) // sequence
-    expect(shouldAskQuestion(resolveAnchor(84, false, E, S))).toBe(true) // goal
-    expect(shouldAskQuestion(resolveAnchor(82, false, E, S))).toBe(false) // corner
+    expect(shouldAskQuestion(resolveAnchor(83, true, E, S))).toBe(true) // sequence
+    expect(shouldAskQuestion(resolveAnchor(85, false, E, S))).toBe(true) // goal
+    expect(shouldAskQuestion(resolveAnchor(51, false, E, S))).toBe(false) // card
     expect(shouldAskQuestion(resolveAnchor(70, false, E, S))).toBe(false) // bare minute
   })
 })
@@ -266,7 +266,7 @@ describe('live vs post', () => {
     expect(maxMinuteFor('live')).toBe(LIVE_MINUTE)
   })
   it('defaults the post cursor to the decisive moment and allows free scrubbing', () => {
-    expect(defaultCursor('post', E)).toBe(87)
+    expect(defaultCursor('post', E)).toBe(90)
     expect(maxMinuteFor('post')).toBe(90)
   })
 })

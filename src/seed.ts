@@ -30,3 +30,4 @@ export {
 } from './data'
 
 export { pulseMatch, pulseAnnotations } from './pulse'
+export { matchBroadcast, eventVideoMarkers } from './video'
