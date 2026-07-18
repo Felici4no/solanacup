@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { profile } from '../data'
 import { TeamSmoke } from '../MatchCover'
 import { Crest, team, darken } from '../assets'
+import { useNav } from '../nav'
 import { Icon } from '../ui'
 
 /* Perfil — quem esta pessoa se tornou através do esporte.
@@ -14,11 +16,12 @@ const ICONS: Record<string, JSX.Element> = {
 
 export default function Profile() {
   const m = profile.marcante
+  const { openProfileEdit, openWatchlist } = useNav()
   return (
     <div className="page pf-page">
       {/* 1 — identidade */}
       <section className="pf-id">
-        <ProfileAvatar />
+        <ProfileAvatar onEdit={openProfileEdit} />
         <div className="pf-id-body">
           <h1 className="pf-name">{profile.name}</h1>
           <p className="pf-loc">
@@ -43,7 +46,7 @@ export default function Profile() {
       <section className="pf-sec">
         <div className="pf-sec-head">
           <span className="label">Clubes do coração</span>
-          <button className="pf-edit">Editar</button>
+          <button className="pf-edit" onClick={openProfileEdit}>Editar</button>
         </div>
         <div className="pf-clubs">
           {profile.clubs.map((c) => (
@@ -69,9 +72,7 @@ export default function Profile() {
           <div className="mm-body">
             <div className="mm-top">
               <span className="mm-date num">{m.date}</span>
-              <button className="mm-bookmark" aria-label="Salvar memória">
-                {Icon.Bookmark}
-              </button>
+              <BookmarkButton />
             </div>
             <h3 className="mm-title">{m.title}</h3>
             <span className="mm-meta">{m.meta}</span>
@@ -100,7 +101,7 @@ export default function Profile() {
 
       {/* 6 — sequência ativa */}
       <section className="pf-sec">
-        <button className="streak-card">
+        <button className="streak-card" onClick={openWatchlist} aria-label="Ver sequência de partidas acompanhadas">
           <span className="streak-icon">{Icon.Flame}</span>
           <div className="streak-body">
             <span className="streak-label">Sequência ativa</span>
@@ -115,7 +116,7 @@ export default function Profile() {
 }
 
 /* Circular avatar — warm stadium light, a supporter silhouette, gold ring. */
-function ProfileAvatar() {
+function ProfileAvatar({ onEdit }: { onEdit: () => void }) {
   return (
     <div className="pf-avatar">
       <span className="pf-av-bg" aria-hidden />
@@ -128,10 +129,25 @@ function ProfileAvatar() {
           <path d="M59 63 L73 44 L68.5 41 L53 59 Z" />
         </g>
       </svg>
-      <button className="pf-av-edit" aria-label="Editar foto">
+      <button className="pf-av-edit" aria-label="Editar perfil" onClick={onEdit}>
         {Icon.Pencil}
       </button>
     </div>
+  )
+}
+
+/* Bookmark toggle with a real, visible pressed state. */
+function BookmarkButton() {
+  const [saved, setSaved] = useState(true)
+  return (
+    <button
+      className={`mm-bookmark${saved ? ' on' : ''}`}
+      aria-pressed={saved}
+      aria-label={saved ? 'Remover dos salvos' : 'Salvar memória'}
+      onClick={() => setSaved((s) => !s)}
+    >
+      {Icon.Bookmark}
+    </button>
   )
 }
 

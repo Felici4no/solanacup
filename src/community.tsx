@@ -430,6 +430,9 @@ export type Annotation = {
   tag?: string
 }
 export function CommunityAnnotation({ a }: { a: Annotation }) {
+  const [related, setRelated] = useState(false)
+  const [reported, setReported] = useState(false)
+  const [menu, setMenu] = useState(false)
   return (
     <div className="annotation">
       <span className="an-mono">{a.mono}</span>
@@ -441,16 +444,32 @@ export function CommunityAnnotation({ a }: { a: Annotation }) {
         <p className="an-text">{a.text}</p>
         {a.tag && <ContextTag label={a.tag} />}
         <div className="an-react">
-          <button>◇ Relate</button>
-          <button>❝ Reply</button>
-          <button aria-label="Report comment">⚑ Report</button>
+          <button className={`an-relate${related ? ' on' : ''}`} aria-pressed={related} onClick={() => setRelated((v) => !v)}>
+            {related ? 'Related' : 'Relate'}
+          </button>
+          {reported ? (
+            <span className="an-reported">Reported</span>
+          ) : (
+            <span className="an-more-wrap">
+              <button className="an-more" aria-label="More actions" aria-expanded={menu} onClick={() => setMenu((v) => !v)}>
+                ⋯
+              </button>
+              {menu && (
+                <span className="an-menu" role="menu">
+                  <button role="menuitem" onClick={() => { setReported(true); setMenu(false) }}>
+                    Report comment
+                  </button>
+                </span>
+              )}
+            </span>
+          )}
         </div>
       </div>
     </div>
   )
 }
 export function ContextTag({ label }: { label: string }) {
-  return <span className="ctx-tag">◈ {label}</span>
+  return <span className="ctx-tag">{label}</span>
 }
 
 export const CONTEXT_TAGS = [
@@ -465,6 +484,7 @@ export const CONTEXT_TAGS = [
 export function CommentComposer({ anchor }: { anchor: string }) {
   const [text, setText] = useState('')
   const [tag, setTag] = useState<string | null>(null)
+  const [posted, setPosted] = useState(false)
   return (
     <div className="composer">
       <p className="composer-prompt">
@@ -472,7 +492,10 @@ export function CommentComposer({ anchor }: { anchor: string }) {
       </p>
       <textarea
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e) => {
+          setText(e.target.value)
+          if (posted) setPosted(false)
+        }}
         placeholder="Share what this moment meant to you…"
         rows={2}
       />
@@ -484,9 +507,17 @@ export function CommentComposer({ anchor }: { anchor: string }) {
         ))}
       </div>
       <div className="composer-row">
-        <span className="caption">Private by default · you choose to share</span>
-        <button className="post" disabled={!text.trim()}>
-          Post
+        <span className="caption">{posted ? 'Saved · private to you' : 'Private by default · you choose to share'}</span>
+        <button
+          className="post"
+          disabled={!text.trim()}
+          onClick={() => {
+            setPosted(true)
+            setText('')
+            setTag(null)
+          }}
+        >
+          {posted ? 'Posted' : 'Post'}
         </button>
       </div>
     </div>
