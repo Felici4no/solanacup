@@ -1,8 +1,10 @@
 /* ============================================================
    Match Cover foundation — teams, competitions, color science,
-   generative crests + national flags. No external imagery:
-   identity is built from restrained team colors + editorial marks.
+   and thin Crest/Flag wrappers over the TeamMark system, which
+   renders REAL official crests and flags (see teamIdentity.ts).
    ============================================================ */
+
+import { TeamMark } from './TeamMark'
 
 export type Team = {
   id: string
@@ -116,49 +118,30 @@ export function competition(id: string): Competition {
 }
 
 /* ============================================================
-   Generative crest — an editorial placeholder badge, colored by
-   the club. Clearly a mark, not a licensed crest. Accessible label.
+   Crest — real official club crests via TeamMark; national teams
+   keep their historical behaviour of showing the flag roundel.
    ============================================================ */
 export function Crest({ id, size = 40 }: { id: string; size?: number }) {
   const t = team(id)
   if (t.kind === 'nation' && t.flag) {
     return <Flag code={t.flag} size={size} shape="roundel" label={t.name} />
   }
-  const [c1, , c3] = t.colors
-  return (
-    <span
-      className="crest"
-      role="img"
-      aria-label={`${t.name} crest`}
-      style={{ width: size, height: size }}
-    >
-      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden>
-        <defs>
-          <clipPath id={`sh-${t.id}`}>
-            <path d="M24 2 L44 9 V25 C44 37 35 44 24 47 C13 44 4 37 4 25 V9 Z" />
-          </clipPath>
-        </defs>
-        <path
-          d="M24 2 L44 9 V25 C44 37 35 44 24 47 C13 44 4 37 4 25 V9 Z"
-          fill={darken(c1, 0.35)}
-          stroke={rgba(c3, 0.9)}
-          strokeWidth="1.4"
-        />
-        <g clipPath={`url(#sh-${t.id})`}>
-          <rect x="0" y="0" width="48" height="16" fill={c1} opacity="0.92" />
-        </g>
-      </svg>
-      <span className="crest-mono" style={{ color: c3 }}>
-        {t.short}
-      </span>
-    </span>
-  )
+  return <TeamMark teamId={t.id} size={size} variant="crest" shape="shield" />
 }
 
 /* ============================================================
-   National flags — simplified, factual geometry. Roundel or rect.
+   National flags — real official art via TeamMark. Roundel or rect.
    ============================================================ */
 export type FlagCode = 'BR' | 'AR' | 'DE' | 'FR' | 'EN' | 'IT'
+
+const FLAG_TEAM: Record<FlagCode, string> = {
+  BR: 'brazil',
+  AR: 'argentina',
+  DE: 'germany',
+  FR: 'france',
+  EN: 'england',
+  IT: 'italy',
+}
 
 export function Flag({
   code,
@@ -171,93 +154,13 @@ export function Flag({
   shape?: 'roundel' | 'rect'
   label?: string
 }) {
-  const round = shape === 'roundel'
-  const w = round ? 48 : 60
-  const h = 48
-  const clip = round ? 'url(#flag-round)' : undefined
   return (
-    <span
-      className={round ? 'flag flag-round' : 'flag flag-rect'}
-      role="img"
-      aria-label={label ? `${label} flag` : `${code} flag`}
-      style={{ width: round ? size : (size * 5) / 4, height: size }}
-    >
-      <svg viewBox={`0 0 ${w} ${h}`} width="100%" height="100%" aria-hidden>
-        <defs>
-          <clipPath id="flag-round">
-            <circle cx="24" cy="24" r="23" />
-          </clipPath>
-        </defs>
-        <g clipPath={clip}>
-          <FlagArt code={code} w={w} h={h} />
-        </g>
-        {round && (
-          <circle
-            cx="24"
-            cy="24"
-            r="23"
-            fill="none"
-            stroke="rgba(255,255,255,0.28)"
-            strokeWidth="1.2"
-          />
-        )}
-      </svg>
-    </span>
+    <TeamMark
+      teamId={FLAG_TEAM[code]}
+      size={size}
+      shape={shape}
+      variant="flag"
+      label={label ?? code}
+    />
   )
-}
-
-function FlagArt({ code, w, h }: { code: FlagCode; w: number; h: number }) {
-  switch (code) {
-    case 'BR':
-      return (
-        <>
-          <rect width={w} height={h} fill="#009C3B" />
-          <polygon
-            points={`${w / 2},5 ${w - 5},${h / 2} ${w / 2},${h - 5} 5,${h / 2}`}
-            fill="#FFDF00"
-          />
-          <circle cx={w / 2} cy={h / 2} r="9" fill="#002776" />
-        </>
-      )
-    case 'AR':
-      return (
-        <>
-          <rect width={w} height={h} fill="#75AADB" />
-          <rect y={h / 3} width={w} height={h / 3} fill="#fff" />
-          <circle cx={w / 2} cy={h / 2} r="5" fill="#F6B40E" />
-        </>
-      )
-    case 'DE':
-      return (
-        <>
-          <rect width={w} height={h / 3} fill="#111114" />
-          <rect y={h / 3} width={w} height={h / 3} fill="#DD0000" />
-          <rect y={(2 * h) / 3} width={w} height={h / 3} fill="#FFCE00" />
-        </>
-      )
-    case 'FR':
-      return (
-        <>
-          <rect width={w / 3} height={h} fill="#0055A4" />
-          <rect x={w / 3} width={w / 3} height={h} fill="#fff" />
-          <rect x={(2 * w) / 3} width={w / 3} height={h} fill="#EF4135" />
-        </>
-      )
-    case 'EN':
-      return (
-        <>
-          <rect width={w} height={h} fill="#fff" />
-          <rect x={w / 2 - 4} width="8" height={h} fill="#CF081F" />
-          <rect y={h / 2 - 4} width={w} height="8" fill="#CF081F" />
-        </>
-      )
-    case 'IT':
-      return (
-        <>
-          <rect width={w / 3} height={h} fill="#008C45" />
-          <rect x={w / 3} width={w / 3} height={h} fill="#fff" />
-          <rect x={(2 * w) / 3} width={w / 3} height={h} fill="#CD212A" />
-        </>
-      )
-  }
 }
