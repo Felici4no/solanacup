@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { LIVE_API } from '../live/client'
+import { LivePanel } from '../live/LivePanel'
 import {
   pulseMatch,
   pulseAnnotations,
@@ -150,6 +152,9 @@ export default function MatchPulse() {
 
   return (
     <div className="page">
+      {/* Live World Cup data from the GAM3BOOK backend (TxLINE), when enabled. */}
+      {LIVE_API && <LivePanel />}
+
       {/* demo-only mode switch */}
       <div className="statepeek" role="group" aria-label="Match mode">
         <span className="label">Mode</span>
