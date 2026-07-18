@@ -1052,3 +1052,51 @@
 .live-reward { color: var(--accent); font-size: 0.95rem; }
 .live-err { color: #e08a8a; font-size: 0.82rem; }
 .live-bal { color: var(--ink-2); font-size: 0.9rem; }
+
+/* ============================================================ VISUAL PASS
+   Mobile-first corrections and feedback affordances.
+   Tokens only — no new colours introduced.
+   ============================================================ */
+
+/* Rule 7: never two columns on mobile. Stack, then allow side-by-side
+   from the small-tablet breakpoint upward. */
+.reveal { grid-template-columns: 1fr; }
+.completed .cm-grid { grid-template-columns: 1fr; }
+@media (min-width: 560px) {
+  .reveal { grid-template-columns: 1fr 1fr; }
+  .completed .cm-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Seeded-content marker */
+.demo-tag { flex: 0 0 auto; font-size: 0.62rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--line);
+  border-radius: 100px; padding: 3px 9px; white-space: nowrap; }
+
+/* Immediate confirmation after a choice in the memory editor */
+.step-ack { margin-top: 10px; font-size: 0.82rem; color: var(--accent);
+  display: flex; align-items: center; gap: 7px; animation: rise 200ms var(--easing); }
+.step-ack::before { content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex: 0 0 auto; }
+
+/* Moment thumbnail — atmospheric, tinted by the match's team colour */
+.moment-chip .mc-thumb { flex: 0 0 auto; width: 46px; height: 46px; border-radius: var(--r-sm);
+  display: grid; place-items: center; border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--surface-2), var(--bg-2)); overflow: hidden; }
+.moment-chip .mc-thumb .mc-min { width: auto; color: var(--ink); font-size: 0.9rem;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+.moment-chip[aria-pressed='true'] .mc-thumb { border-color: var(--accent); }
+
+/* Visible social activity behind the Community Pulse number */
+.pulse-faces { display: flex; align-items: center; gap: 10px; margin-top: var(--s2);
+  padding-top: var(--s2); border-top: 1px solid var(--line); }
+.pulse-faces .pf-dots { display: inline-flex; flex: 0 0 auto; }
+.pulse-faces .pf-dots i { width: 24px; height: 24px; border-radius: 50%; margin-left: -7px;
+  display: grid; place-items: center; font-family: var(--serif); font-style: normal;
+  font-size: 0.62rem; color: var(--ink-2); background: var(--surface-2);
+  border: 1px solid var(--surface-comm); }
+.pulse-faces .pf-dots i:first-child { margin-left: 0; }
+.pulse-faces .pf-txt { font-size: 0.82rem; color: var(--ink-3); line-height: 1.35; }
+
+/* Hero: the centred competition block must never run under the absolutely
+   positioned status chip at 320px. Reserve the chip's gutter. */
+.sc-hero .sc-comp { padding-inline: 60px; }

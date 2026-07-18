@@ -1,12 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { matchDetail as D } from '../data'
 import { MatchCover, type MatchData } from '../MatchCover'
 import { StadiumVisual } from '../visuals'
 import { Crest, team } from '../assets'
 import { useNav } from '../nav'
+import { matchPresentation } from '../matchState'
 import { useWatchlist, matchId } from '../watchlist'
 import { Button } from '../Button'
-import { Icon } from '../ui'
+import { Icon, DemoTag } from '../ui'
 import {
   MatchRating,
   CommunityPulse,
@@ -35,15 +36,30 @@ export default function MatchDetail({ match }: { match: MatchData }) {
   const [memory, setMemory] = useState<SavedMemory | null>(null)
   const { openWatchlistMatch } = useNav()
 
+  // One place decides status, CTA and landing tab for this phase, and the
+  // emotional line follows what THIS fan has done with the match.
+  const view = matchPresentation(phase, {
+    checkedIn: phase !== 'pre',
+    hasMemory: Boolean(memory),
+    watchedWith: 'your father',
+    firstAtVenue: true,
+    venue: match.venue ?? D.base.venue,
+  })
+
+  // Landing tab follows the phase (live opens on Moments).
+  useEffect(() => {
+    setTab(matchPresentation(phase).defaultTab)
+    setEditing(false)
+  }, [phase])
+
   const heroMatch: MatchData = {
     ...match,
     stage: match.stage ?? D.base.stage,
     venue: match.venue ?? D.base.venue,
-    status: phase === 'live' ? 'You’re watching' : phase === 'post' ? 'Ended' : 'Tonight',
+    status: view.statusLabel,
     kickoff: phase === 'live' ? D.minute : phase === 'post' ? undefined : match.kickoff ?? D.base.kickoff,
     score: phase === 'live' ? D.liveScore : phase === 'post' ? D.fullTime : undefined,
   }
-  const conn = D.connection[phase]
 
   return (
     <div className="page">
@@ -68,28 +84,28 @@ export default function MatchDetail({ match }: { match: MatchData }) {
         {phase === 'pre' && (
           <WatchlistAction match={match} onManage={() => openWatchlistMatch(match)} />
         )}
-        {phase === 'live' && (
+        {phase !== 'pre' && (
           <>
-            <p className="md-connection-text">{conn.text}<span className="sub">{conn.sub}</span></p>
-            <Button variant="primary" size="lg" block onClick={() => setTab('moments')}>
-              Add a Moment
-            </Button>
-          </>
-        )}
-        {phase === 'post' && (
-          <>
-            <p className="md-connection-text">{conn.text}<span className="sub">{conn.sub}</span></p>
-            {!editing && !memory && (
+            {view.subtext && (
+              <p className="md-connection-text">
+                {view.subtext.text}
+                <span className="sub">{view.subtext.sub}</span>
+              </p>
+            )}
+            {view.ctaLabel && !editing && (
               <Button
                 variant="primary"
                 size="lg"
                 block
                 onClick={() => {
-                  setEditing(true)
-                  setTab('story')
+                  if (phase === 'live') setTab('moments')
+                  else {
+                    setEditing(true)
+                    setTab('story')
+                  }
                 }}
               >
-                Complete Your Memory
+                {view.ctaLabel}
               </Button>
             )}
           </>
@@ -119,6 +135,7 @@ export default function MatchDetail({ match }: { match: MatchData }) {
           ) : phase === 'post' && editing ? (
             <CompleteMemoryEditor
               moments={D.moments.map((m) => ({ min: m.min, type: m.type, player: m.player }))}
+              accentTeamId={heroMatch.home}
               onSave={(m) => {
                 setMemory(m)
                 setEditing(false)
@@ -128,10 +145,10 @@ export default function MatchDetail({ match }: { match: MatchData }) {
             <MatchRating communityAvg={D.communityRating.avg} communityCount={D.communityRating.count} />
           )}
           <div className="section" style={{ marginTop: 40 }}>
-            <CommunityPulse pulse={D.pulse} />
+            <CommunityPulse pulse={D.pulse} supporters={D.comments.map((c) => ({ mono: c.mono }))} />
           </div>
           <div className="section">
-            <span className="label" style={{ display: 'block', marginBottom: 8 }}>Selected voices</span>
+            <div className="section-head"><span className="label">Selected voices</span><DemoTag /></div>
             {D.comments.slice(0, 2).map((a) => (
               <CommunityAnnotation key={a.name} a={a} />
             ))}

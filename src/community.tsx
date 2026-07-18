@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BRAND } from './brand'
+import { team, rgba } from './assets'
 import {
   StarRange,
   MiniStars,
@@ -115,7 +116,14 @@ export type Pulse = {
   familyPct: number
   editorial: string
 }
-export function CommunityPulse({ pulse: p }: { pulse: Pulse }) {
+export function CommunityPulse({
+  pulse: p,
+  supporters = [],
+}: {
+  pulse: Pulse
+  /** Visible social activity: the fans behind the number. */
+  supporters?: { mono: string }[]
+}) {
   return (
     <div className="pulse">
       <div className="pulse-head">
@@ -125,6 +133,16 @@ export function CommunityPulse({ pulse: p }: { pulse: Pulse }) {
         <span className="big num">{p.avg.toFixed(1)}</span>
         <span className="of">average from {p.memories.toLocaleString()} memories</span>
       </div>
+      {supporters.length > 0 && (
+        <div className="pulse-faces">
+          <span className="pf-dots" aria-hidden>
+            {supporters.slice(0, 5).map((s, i) => (
+              <i key={i}>{s.mono}</i>
+            ))}
+          </span>
+          <span className="pf-txt">and {p.memories.toLocaleString()} others wrote this chapter</span>
+        </div>
+      )}
       <div className="pulse-list">
         <PulseRow icon="◷" v={<><b>{p.topMoment}</b> became the most remembered moment.</>} />
         <PulseRow icon="⌾" v={<><b>{p.firstTimers.toLocaleString()}</b> people entered {p.stadium} for the first time.</>} />
@@ -250,10 +268,13 @@ const PLACES = ['At the stadium', 'At home', 'At a bar', 'At someone’s place',
 const COMPANY = ['Alone', 'Family', 'Friends', 'Partner', 'Add someone']
 
 export function CompleteMemoryEditor({
+  accentTeamId,
   moments,
   onSave,
 }: {
   moments: { min: string; type: string; player: string }[]
+  /** Team whose colour tints the moment thumbnails. */
+  accentTeamId?: string
   onSave: (m: SavedMemory) => void
 }) {
   const [rating, setRating] = useState<number | null>(null)
@@ -284,13 +305,33 @@ export function CompleteMemoryEditor({
                   aria-pressed={momentIdx === i}
                   onClick={() => setMomentIdx(momentIdx === i ? null : i)}
                 >
-                  <span className="mc-min num">{m.min}</span>
+                  <span
+                    className="mc-thumb"
+                    aria-hidden
+                    style={
+                      accentTeamId
+                        ? {
+                            background: `radial-gradient(120% 100% at 30% 0%, ${rgba(
+                              team(accentTeamId).colors[0],
+                              0.55,
+                            )}, transparent 70%), linear-gradient(180deg, var(--surface-2), var(--bg-2))`,
+                          }
+                        : undefined
+                    }
+                  >
+                    <span className="mc-min num">{m.min}</span>
+                  </span>
                   <span className="mc-body">
                     <span className="t">{m.type}</span> <span className="p">· {m.player}</span>
                   </span>
                 </button>
               ))}
             </div>
+            {momentIdx != null && (
+              <p className="step-ack" role="status">
+                Kept · {moments[momentIdx].min} {moments[momentIdx].type}
+              </p>
+            )}
             {momentIdx != null && (
               <div className="moment-impact">
                 <p className="mi-q">How much did this moment affect you?</p>
@@ -325,6 +366,11 @@ export function CompleteMemoryEditor({
                 </button>
               ))}
             </div>
+            {place && (
+              <p className="step-ack" role="status">
+                Kept · {place}
+              </p>
+            )}
           </div>
 
           <div className="editor-step">
@@ -336,6 +382,11 @@ export function CompleteMemoryEditor({
                 </button>
               ))}
             </div>
+            {company && (
+              <p className="step-ack" role="status">
+                Kept · {company}
+              </p>
+            )}
           </div>
 
           <div className="editor-save">
