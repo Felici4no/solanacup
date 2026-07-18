@@ -3,17 +3,17 @@ import cors from 'cors'
 import { config } from '../config.js'
 import { authState } from '../txline/auth.js'
 import { TxlineHttpError } from '../txline/client.js'
-import type { WorldCupService } from '../services/worldcup.js'
 import type { RewardsService } from '../services/rewards.js'
-import type { FanToken } from '../solana/fantoken.js'
+import type { Rewarder, WorldCupSource } from '../services/source.js'
 import { CHECKIN_REWARD, GOAL_BONUS } from '../services/rewards.js'
-import { VEZ_DECIMALS } from '../solana/fantoken.js'
+import { TOKEN_DECIMALS } from '../solana/fantoken.js'
+import { TOKEN_SYMBOL } from '../brand.js'
 
 /* ============================================================
-   REST + SSE surface consumed by the Vez frontend.
+   REST + SSE surface consumed by the GAM3BOOK frontend.
    ============================================================ */
 
-export function createServer(worldCup: WorldCupService, rewards: RewardsService, fanToken: FanToken) {
+export function createServer(worldCup: WorldCupSource, rewards: RewardsService, fanToken: Rewarder) {
   const app = express()
   app.use(cors())
   app.use(express.json())
@@ -23,12 +23,14 @@ export function createServer(worldCup: WorldCupService, rewards: RewardsService,
       ok: true,
       network: config.network,
       txlineHost: config.host,
+      dataSource: worldCup.kind,
       txlineActivated: Boolean(authState.apiToken),
-      vezMint: fanToken.mint.toBase58(),
+      tokenMint: fanToken.mint.toBase58(),
+      tokenSimulated: fanToken.simulated,
     })
   })
 
-  /* ---- World Cup data (normalized for Vez) ---- */
+  /* ---- World Cup data (normalized for GAM3BOOK) ---- */
 
   app.get('/api/wc/fixtures', async (_req, res) => {
     try {
@@ -74,14 +76,15 @@ export function createServer(worldCup: WorldCupService, rewards: RewardsService,
     })
   })
 
-  /* ---- VEZ fan token ---- */
+  /* ---- G3B fan token ---- */
 
   app.get('/api/fan/token', (_req, res) => {
     res.json({
       mint: fanToken.mint.toBase58(),
-      symbol: 'VEZ',
-      decimals: VEZ_DECIMALS,
+      symbol: TOKEN_SYMBOL,
+      decimals: TOKEN_DECIMALS,
       network: config.network,
+      simulated: fanToken.simulated,
       rewards: { checkin: CHECKIN_REWARD, goalBonus: GOAL_BONUS },
     })
   })

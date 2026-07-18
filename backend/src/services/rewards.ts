@@ -1,15 +1,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { PublicKey } from '@solana/web3.js'
-import type { FanToken } from '../solana/fantoken.js'
-import type { WorldCupService } from './worldcup.js'
+import type { Rewarder, WorldCupSource } from './source.js'
 
 /* ============================================================
-   VEZ rewards — the "I'm Watching" ritual becomes an on-chain
+   G3B rewards — the "I'm Watching" ritual becomes an on-chain
    fan moment, but only when TxLINE confirms the match is live.
 
-   - Check-in on a LIVE fixture ......... 10 VEZ
-   - Goal while checked-in (per goal) ...  5 VEZ (paid on claim)
+   - Check-in on a LIVE fixture ......... 10 G3B
+   - Goal while checked-in (per goal) ...  5 G3B (paid on claim)
    One check-in per wallet per fixture.
    ============================================================ */
 
@@ -45,8 +44,8 @@ export class RewardsService {
   private state = loadState()
 
   constructor(
-    private readonly fanToken: FanToken,
-    private readonly worldCup: WorldCupService,
+    private readonly fanToken: Rewarder,
+    private readonly worldCup: WorldCupSource,
   ) {}
 
   findCheckin(wallet: string, fixtureId: number) {
@@ -81,7 +80,7 @@ export class RewardsService {
     return { ok: true as const, reward: CHECKIN_REWARD, txSig, match }
   }
 
-  /** Claim goal bonuses: 5 VEZ per goal scored since the check-in. */
+  /** Claim goal bonuses: 5 G3B per goal scored since the check-in. */
   async claimGoalBonus(walletStr: string, fixtureId: number) {
     const checkin = this.findCheckin(walletStr, fixtureId)
     if (!checkin) return { ok: false as const, code: 'no_checkin' as const }

@@ -1,14 +1,15 @@
 import { WORLD_CUP_COMPETITION_ID, epochDay } from '../config.js'
 import { fixturesSnapshot, scoresSnapshot, scoresStream } from '../txline/api.js'
 import type { Fixture, Scores, SoccerData } from '../txline/types.js'
+import type { LiveEvent, Subscription, WorldCupSource } from './source.js'
 
 /* ============================================================
    World Cup service — fetches TxLINE data and normalizes it to
-   the shapes the Vez frontend already understands (matches and
+   the shapes the GAM3BOOK frontend already understands (matches and
    Match Pulse events).
    ============================================================ */
 
-export type VezFixture = {
+export type AppFixture = {
   fixtureId: number
   competition: string
   competitionId: number
@@ -20,7 +21,7 @@ export type VezFixture = {
   updatedAt: number
 }
 
-export type VezPulseEvent = {
+export type PulseEvent = {
   minute: number | null
   type: 'goal' | 'penalty' | 'red_card' | 'yellow_card' | 'corner' | 'var' | 'state' | 'other'
   team: 'home' | 'away' | null
@@ -30,12 +31,12 @@ export type VezPulseEvent = {
   raw?: string
 }
 
-export type VezMatchState = {
+export type MatchState = {
   fixtureId: number
   gameState: string
   live: boolean
   score: { home: number; away: number }
-  events: VezPulseEvent[]
+  events: PulseEvent[]
 }
 
 /** Soccer fixture statuses that mean the ball is (or may be) rolling.
@@ -50,7 +51,7 @@ export function isEndedState(gameState: string): boolean {
   return ENDED_STATES.has(gameState)
 }
 
-export function normalizeFixture(f: Fixture): VezFixture {
+export function normalizeFixture(f: Fixture): AppFixture {
   const homeFirst = f.Participant1IsHome
   return {
     fixtureId: f.FixtureId,
@@ -84,9 +85,9 @@ function teamOf(record: Scores, data: SoccerData | null): 'home' | 'away' | null
   return (isP1 && p1IsHome) || (isP2 && !p1IsHome) ? 'home' : 'away'
 }
 
-export function normalizeScore(record: Scores): VezPulseEvent {
+export function normalizeScore(record: Scores): PulseEvent {
   const data = parseSoccerAction(record)
-  let type: VezPulseEvent['type'] = 'other'
+  let type: PulseEvent['type'] = 'other'
   if (data?.Goal) type = data.Penalty ? 'penalty' : 'goal'
   else if (data?.RedCard || data?.Color === 'Red') type = 'red_card'
   else if (data?.YellowCard || data?.Color === 'Yellow') type = 'yellow_card'
@@ -106,7 +107,7 @@ export function normalizeScore(record: Scores): VezPulseEvent {
 }
 
 /** Fold normalized events into a match state (score by counting goals). */
-export function buildMatchState(fixtureId: number, records: Scores[]): VezMatchState {
+export function buildMatchState(fixtureId: number, records: Scores[]): MatchState {
   const ordered = [...records].sort((a, b) => a.seq - b.seq)
   const events = ordered.map(normalizeScore)
   const score = { home: 0, away: 0 }
@@ -119,11 +120,12 @@ export function buildMatchState(fixtureId: number, records: Scores[]): VezMatchS
 
 /* ---- Service with a small cache ---- */
 
-export class WorldCupService {
-  private fixtures: VezFixture[] = []
+export class WorldCupService implements WorldCupSource {
+  readonly kind = 'txline' as const
+  private fixtures: AppFixture[] = []
   private fetchedAt = 0
 
-  async getFixtures(): Promise<VezFixture[]> {
+  async getFixtures(): Promise<AppFixture[]> {
     const STALE_MS = 5 * 60 * 1000
     if (Date.now() - this.fetchedAt > STALE_MS) {
       const raw = await fixturesSnapshot({
@@ -136,13 +138,13 @@ export class WorldCupService {
     return this.fixtures
   }
 
-  async getMatchState(fixtureId: number): Promise<VezMatchState> {
+  async getMatchState(fixtureId: number): Promise<MatchState> {
     const records = await scoresSnapshot(fixtureId)
     return buildMatchState(fixtureId, records)
   }
 
   /** Re-broadcastable live stream of one fixture (or all permitted). */
-  streamScores(onEvent: (e: VezPulseEvent & { fixtureId: number }) => void, fixtureId?: number) {
+  streamScores(onEvent: (e: PulseEvent & { fixtureId: number }) => void, fixtureId?: number) {
     return scoresStream(
       {
         onData: (record) => onEvent({ ...normalizeScore(record), fixtureId: record.fixtureId }),
