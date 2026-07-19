@@ -6,6 +6,8 @@ import {
   MATCH_STAR_LABELS,
   MOMENT_STAR_LABELS,
 } from './StarRange'
+import { useAction, persistAnnotation, ok as okResult, type RepositoryResult } from './repository'
+import { ActionError } from './ui'
 
 /* ============================================================
    Community layer — ratings, pulse, moments and anchored comments.
@@ -251,9 +253,13 @@ const COMPANY = ['Alone', 'Family', 'Friends', 'Partner', 'Add someone']
 export function CompleteMemoryEditor({
   moments,
   onSave,
+  persist,
 }: {
   moments: { min: string; type: string; player: string }[]
   onSave: (m: SavedMemory) => void
+  /** Optional persistence gateway; failures keep the editor open with
+      every field intact and offer a retry. */
+  persist?: (m: SavedMemory) => Promise<RepositoryResult<void>>
 }) {
   const [rating, setRating] = useState<number | null>(null)
   const [momentIdx, setMomentIdx] = useState<number | null>(null)
@@ -261,6 +267,12 @@ export function CompleteMemoryEditor({
   const [note, setNote] = useState('')
   const [place, setPlace] = useState<string | null>(null)
   const [company, setCompany] = useState<string | null>(null)
+
+  const save = useAction(async (m: SavedMemory) => {
+    const res = persist ? await persist(m) : okResult()
+    if (res.ok) onSave(m)
+    return res
+  })
 
   const revealed = rating != null
 
@@ -340,9 +352,10 @@ export function CompleteMemoryEditor({
           <div className="editor-save">
             <button
               className="cta-block"
-              disabled={rating == null}
+              disabled={rating == null || save.pending}
+              aria-busy={save.pending || undefined}
               onClick={() =>
-                onSave({
+                save.run({
                   rating: rating!,
                   moment: momentIdx != null ? moments[momentIdx] : undefined,
                   momentImpact: momentImpact ?? undefined,
@@ -352,8 +365,11 @@ export function CompleteMemoryEditor({
                 })
               }
             >
-              Save Memory
+              {save.pending ? 'Saving…' : 'Save Memory'}
             </button>
+            {save.failed && (
+              <ActionError message="Couldn’t save your memory. Nothing was lost." onRetry={save.retry} />
+            )}
           </div>
         </>
       )}
@@ -484,6 +500,18 @@ export function CommentComposer({ anchor }: { anchor: string }) {
   const [text, setText] = useState('')
   const [tag, setTag] = useState<string | null>(null)
   const [posted, setPosted] = useState(false)
+
+  const post = useAction(async () => {
+    const res = await persistAnnotation({ anchor, text: text.trim(), tag })
+    if (res.ok) {
+      // only clear the editor once the write is confirmed
+      setPosted(true)
+      setText('')
+      setTag(null)
+    }
+    return res
+  })
+
   return (
     <div className="composer">
       <p className="composer-prompt">
@@ -494,6 +522,7 @@ export function CommentComposer({ anchor }: { anchor: string }) {
         onChange={(e) => {
           setText(e.target.value)
           if (posted) setPosted(false)
+          if (post.failed) post.reset()
         }}
         placeholder="Share what this moment meant to you…"
         rows={2}
@@ -509,16 +538,16 @@ export function CommentComposer({ anchor }: { anchor: string }) {
         <span className="caption">{posted ? 'Saved · private to you' : 'Private by default · you choose to share'}</span>
         <button
           className="post"
-          disabled={!text.trim()}
-          onClick={() => {
-            setPosted(true)
-            setText('')
-            setTag(null)
-          }}
+          disabled={!text.trim() || post.pending}
+          aria-busy={post.pending || undefined}
+          onClick={() => post.run()}
         >
-          {posted ? 'Posted' : 'Post'}
+          {post.pending ? 'Posting…' : posted ? 'Posted' : 'Post'}
         </button>
       </div>
+      {post.failed && (
+        <ActionError message="Couldn’t publish your note. Your text is still here." onRetry={post.retry} />
+      )}
     </div>
   )
 }

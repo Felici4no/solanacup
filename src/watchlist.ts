@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import type { MatchData } from './MatchCover'
+import { ok, err, type RepositoryResult } from './repository'
 
 /* ============================================================
    Watchlist state — persisted so the saved/reminder state agrees
@@ -45,7 +46,9 @@ export type PersistedWatchlist = { version: number; matches: WatchlistState }
 
 export interface WatchlistRepository {
   load(): WatchlistState
-  save(state: WatchlistState): void
+  /** Async so the same contract serves localStorage and a remote API.
+      Failures are explicit results — never swallowed. */
+  save(state: WatchlistState): Promise<RepositoryResult<void>>
 }
 
 /** Migrate a persisted envelope from an older schema. No prior versions yet. */
@@ -71,13 +74,14 @@ export class LocalStorageWatchlistRepository implements WatchlistRepository {
       return {}
     }
   }
-  save(state: WatchlistState): void {
-    if (typeof localStorage === 'undefined') return
+  async save(state: WatchlistState): Promise<RepositoryResult<void>> {
+    if (typeof localStorage === 'undefined') return err('storage_write_failed', 'storage unavailable')
     try {
       const envelope: PersistedWatchlist = { version: SCHEMA_VERSION, matches: state }
       localStorage.setItem(this.key, JSON.stringify(envelope))
+      return ok()
     } catch {
-      /* quota / private mode — keep the in-memory state, don't throw */
+      return err('storage_write_failed', 'storage unavailable')
     }
   }
 }
@@ -85,11 +89,22 @@ export class LocalStorageWatchlistRepository implements WatchlistRepository {
 let repo: WatchlistRepository = new LocalStorageWatchlistRepository()
 let state: WatchlistState = repo.load()
 const listeners = new Set<() => void>()
-function commit(next: WatchlistState) {
+function setState(next: WatchlistState) {
   if (next === state) return
   state = next
-  repo.save(state)
   listeners.forEach((l) => l())
+}
+
+/** Optimistic commit: apply immediately, persist, roll back to the last
+    confirmed state if the write fails. The UI never ends up contradictory —
+    on failure the visible state is exactly what is actually stored. */
+async function commit(next: WatchlistState): Promise<RepositoryResult<void>> {
+  if (next === state) return ok()
+  const confirmed = state
+  setState(next)
+  const res = await repo.save(next)
+  if (!res.ok) setState(confirmed)
+  return res
 }
 
 /** Swap the persistence backend (e.g. an API repo once auth exists). */
@@ -116,11 +131,11 @@ export const watchlistStore = {
     if (Object.keys(state).length) return
     let next = state
     for (const id of ids) next = addMatch(next, id)
-    commit(next)
+    void commit(next)
   },
   /** Test helper. */
   reset() {
-    commit({})
+    void commit({})
   },
 }
 

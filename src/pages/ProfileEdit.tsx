@@ -1,26 +1,33 @@
 import { useState } from 'react'
 import { profile } from '../data'
 import { useNav } from '../nav'
+import { useAction, persistProfile } from '../repository'
 import { Button } from '../Button'
+import { ActionError } from '../ui'
 
-/* /profile/edit — preloads current values, Save returns to Perfil. */
+/* /profile/edit — preloads current values. Save persists through the
+   repository gateway; on failure the fields keep everything the user
+   typed and a contextual retry is offered. */
 export default function ProfileEdit() {
   const { back } = useNav()
   const [name, setName] = useState(profile.name)
   const [location, setLocation] = useState(profile.location)
   const [tagline, setTagline] = useState(profile.tagline)
-  const [saving, setSaving] = useState(false)
 
   const dirty = name !== profile.name || location !== profile.location || tagline !== profile.tagline
 
-  function save() {
-    setSaving(true)
-    // persist to the in-memory profile so Perfil reflects the change
-    profile.name = name.trim() || profile.name
-    profile.location = location.trim()
-    profile.tagline = tagline.trim()
-    setTimeout(back, 250)
-  }
+  const save = useAction(async () => {
+    const data = { name: name.trim() || profile.name, location: location.trim(), tagline: tagline.trim() }
+    const res = await persistProfile(data)
+    if (res.ok) {
+      // apply to the in-memory profile only after the write is confirmed
+      profile.name = data.name
+      profile.location = data.location
+      profile.tagline = data.tagline
+      back()
+    }
+    return res
+  })
 
   return (
     <div className="page">
@@ -43,11 +50,15 @@ export default function ProfileEdit() {
         </label>
       </div>
 
+      {save.failed && (
+        <ActionError message="Couldn’t save your changes. Your edits are still here." onRetry={save.retry} />
+      )}
+
       <div className="form-actions">
-        <Button variant="ghost" size="md" onClick={back} disabled={saving}>
+        <Button variant="ghost" size="md" onClick={back} disabled={save.pending}>
           Cancel
         </Button>
-        <Button variant="primary" size="md" loading={saving} disabled={!dirty} onClick={save}>
+        <Button variant="primary" size="md" loading={save.pending} disabled={!dirty} onClick={() => save.run()}>
           Save
         </Button>
       </div>
