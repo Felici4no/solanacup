@@ -10,7 +10,7 @@ const TEAM_IDS = Object.keys(TEAMS)
 
 describe('teamIdentity registry', () => {
   it('resolves an identity for every existing TEAMS id', () => {
-    expect(TEAM_IDS).toHaveLength(11)
+    expect(TEAM_IDS).toHaveLength(12)
     for (const id of TEAM_IDS) {
       const identity = getTeamIdentity(id)
       expect(identity.id, id).toBe(id)

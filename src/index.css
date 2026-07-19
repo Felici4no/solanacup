@@ -87,17 +87,19 @@ img, svg { display: block; }
   background: var(--bg); box-shadow: 0 0 120px rgba(0, 0, 0, 0.55); }
 
 .header { position: sticky; top: 0; z-index: 40;
-  display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center;
   padding: calc(env(safe-area-inset-top, 0px) + 10px) var(--s3) 10px;
   background: linear-gradient(180deg, rgba(19, 18, 23, 0.92) 55%, rgba(19, 18, 23, 0));
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .wordmark { text-align: center; font-family: var(--sans); font-size: 0.78rem; font-weight: 600;
   letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink); padding-left: 0.4em; }
 .wordmark .dot { color: var(--accent); }
+.header-right { display: flex; align-items: center; gap: 4px; }
 .profile-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line-2);
   display: grid; place-items: center; color: var(--ink-2); overflow: hidden;
   transition: border-color 160ms var(--easing), color 160ms var(--easing); }
 .profile-btn:active { color: var(--ink); border-color: var(--accent); }
+.share-profile-btn { min-width: 44px; min-height: 44px; width: auto; border-radius: 22px; }
 .header-spacer { width: 34px; height: 34px; }
 
 .page { padding: var(--s2) var(--s3) calc(96px + env(safe-area-inset-bottom, 0px)); animation: rise 320ms var(--easing); }

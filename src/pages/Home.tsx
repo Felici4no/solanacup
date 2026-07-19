@@ -1,109 +1,157 @@
-import { useState } from 'react'
+import { useCallback } from 'react'
 import {
-  todaysChapter,
   continueMemory,
   onThisDay,
   communityMoment,
-  comingUp,
 } from '../data'
 import { MatchCover, SplitCover, MemoryStrip, CommunityStory, type MatchData } from '../MatchCover'
 import { useNav } from '../nav'
-import { matchPresentation } from '../matchState'
 import { Rating, SectionHead, Dot, Icon, DemoTag } from '../ui'
+import { useHomeMatch } from '../useHomeMatch'
+import type { HomeMatch } from '../homeMatch'
 
-type Phase = 'pre' | 'live' | 'post' | 'none'
-
-const PHASES: { id: Phase; label: string }[] = [
-  { id: 'pre', label: 'Pre-match' },
-  { id: 'live', label: 'Live' },
-  { id: 'post', label: 'Full time' },
-  { id: 'none', label: 'No match' },
-]
-
-// Temporal-state preview is a development aid only; it never occupies production layout.
+// State switcher visible only during development (never in production layout)
 const SHOW_STATE_SWITCHER = import.meta.env.DEV
 
+/** Convert a HomeMatch to the MatchData shape used by cover components. */
+function homeMatchToMatchData(m: HomeMatch): MatchData & { minute?: string; liveScore?: string; fullTime?: string } {
+  const isLiveOrHalf = m.status === 'live' || m.status === 'halftime'
+  const isEnded = m.status === 'finished'
+  const hasScore = m.homeScore !== undefined && m.awayScore !== undefined
+
+  let status: string | undefined
+  if (isLiveOrHalf) status = 'LIVE'
+  else if (isEnded) status = 'ENDED'
+
+  const scoreStr = hasScore ? `${m.homeScore} — ${m.awayScore}` : undefined
+
+  return {
+    home: m.homeTeam.id,
+    away: m.awayTeam.id,
+    competition: 'worldcup',
+    stage: m.stage,
+    status,
+    score: isEnded ? scoreStr : undefined,
+    kickoff: !isLiveOrHalf && !isEnded
+      ? formatKickoff(m.startsAt)
+      : undefined,
+  }
+}
+
+/** Format an ISO kickoff string into a user-friendly label. */
+function formatKickoff(iso: string): string {
+  try {
+    const d = new Date(iso)
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    const sameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate()
+
+    const timeStr = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+
+    if (sameDay(d, today)) return `Hoje · ${timeStr}`
+    if (sameDay(d, tomorrow)) return `Amanhã · ${timeStr}`
+    return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' }) + ` · ${timeStr}`
+  } catch {
+    return iso
+  }
+}
+
+/** CTA button for the hero section based on match status. */
+function HeroCTA({ match, onOpen }: { match: HomeMatch; onOpen: () => void }) {
+  switch (match.status) {
+    case 'live':
+    case 'halftime':
+      return (
+        <button className="cta-block ghost" onClick={onOpen}>
+          {Icon.Play} I'm Watching
+        </button>
+      )
+    case 'finished':
+      return (
+        <button className="cta-block" onClick={onOpen}>
+          Complete your memory
+        </button>
+      )
+    case 'scheduled':
+      return (
+        <button className="cta-block cta-watch" onClick={onOpen}>
+          Add to Watchlist
+        </button>
+      )
+    default:
+      return null
+  }
+}
+
+/** Discreet source label — only show technical detail in DEV, never "Verified by TxLINE" for replay/snapshot. */
+function SourceBadge({ source }: { source: string }) {
+  if (!SHOW_STATE_SWITCHER) return null
+  const label =
+    source === 'txline' ? 'LIVE · TxLINE' :
+    source === 'replay' ? 'Replay · TxLINE data' :
+    source === 'snapshot' ? 'Snapshot · TxLINE data' : null
+  if (!label) return null
+  return (
+    <span
+      style={{
+        display: 'block',
+        textAlign: 'center',
+        fontSize: '0.7rem',
+        color: 'var(--ink-3)',
+        marginTop: 4,
+        letterSpacing: '0.06em',
+      }}
+    >
+      {label}
+    </span>
+  )
+}
+
 export default function Home() {
-  const [phase, setPhase] = useState<Phase>('pre')
-  const [watching, setWatching] = useState(false)
   const { openMatch, openWatchlist } = useNav()
+  const { featured, upcoming, source, loading } = useHomeMatch()
 
-  const pick = (p: Phase) => {
-    setPhase(p)
-    setWatching(false)
-  }
+  // Build a MatchData from the live HomeMatch if available
+  const heroMatchData = featured ? homeMatchToMatchData(featured) : null
 
-  // Build the hero match by temporal state. Pre-match carries no status chip —
-  // the kickoff line already says "Tonight"; the chip appears once there is state.
-  const heroMatch: MatchData = {
-    ...todaysChapter,
-    // Pre-match carries no chip on Home — the kickoff line already says
-    // "Tonight". Live/full-time take their label from the central model.
-    status:
-      phase === 'none'
-        ? undefined
-        : phase === 'pre'
-          ? watching
-            ? 'You’re in'
-            : undefined
-          : matchPresentation(phase, { checkedIn: true }).statusLabel,
-    kickoff: phase === 'live' ? todaysChapter.minute : phase === 'post' ? undefined : todaysChapter.kickoff,
-    score: phase === 'live' ? todaysChapter.liveScore : phase === 'post' ? todaysChapter.fullTime : undefined,
-  }
+  const handleOpenHero = useCallback(() => {
+    if (heroMatchData) openMatch(heroMatchData)
+  }, [heroMatchData, openMatch])
 
   return (
     <div className="page">
-      {/* Dev-only: preview all temporal + edge states (never in production layout) */}
-      {SHOW_STATE_SWITCHER && (
-        <div className="statepeek" role="group" aria-label="Preview state">
-          <span className="label">State</span>
-          <div className="peek-pills">
-            {PHASES.map((p) => (
-              <button key={p.id} className="peek-pill" aria-pressed={phase === p.id} onClick={() => pick(p.id)}>
-                {p.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* SECTION 1 — Today's Chapter */}
       <section className="hero-first">
-        <SectionHead label="Today’s Chapter" />
-        {phase !== 'none' ? (
+        <SectionHead label="Today's Chapter" />
+
+        {loading && !featured ? (
           <div className="hero-cover">
-            <button className="cover-tap" onClick={() => openMatch(heroMatch)} aria-label="Open match detail">
-              <SplitCover match={heroMatch} size="hero" />
+            <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-3)', fontSize: '0.85rem' }}>
+              Loading…
+            </div>
+          </div>
+        ) : heroMatchData ? (
+          <div className="hero-cover">
+            <button className="cover-tap" onClick={handleOpenHero} aria-label="Open match detail">
+              <SplitCover match={heroMatchData} size="hero" />
             </button>
             <div className="hero-bar">
-              {phase === 'pre' && !watching && (
-                <button className="cta-block cta-watch" onClick={() => setWatching(true)}>
-                  {Icon.Play} I’m Watching
-                </button>
-              )}
-              {phase === 'pre' && watching && (
-                <div className="confirm" role="status">
-                  <span className="c-left">
-                    <span className="tick" aria-hidden />
-                    <span className="c-text">Memory started</span>
-                    <span className="c-sub num">· Kickoff 21:30</span>
-                  </span>
-                  <button className="undo" onClick={() => setWatching(false)}>
-                    Undo
-                  </button>
-                </div>
-              )}
-              {phase === 'live' && <button className="cta-block ghost">Add a moment</button>}
-              {phase === 'post' && <button className="cta-block">Complete your memory</button>}
+              <HeroCTA match={featured!} onOpen={handleOpenHero} />
             </div>
+            <SourceBadge source={source} />
           </div>
         ) : (
           <NoMatchHero />
         )}
       </section>
 
-      {/* COMING UP — split-cover rail (only when saved matches exist) */}
-      {comingUp.length > 0 && (
+      {/* COMING UP — from live data when available */}
+      {upcoming.length > 0 && (
         <section className="section coming-first">
           <div className="section-head">
             <span className="label">Coming up</span>
@@ -112,17 +160,19 @@ export default function Home() {
             </button>
           </div>
           <div className="coming-rail">
-            {comingUp.map((w, i) => (
-              <div className="cu-card" key={i}>
-                <button className="cover-tap" onClick={() => openMatch(w.match)} aria-label="Open match">
-                  <SplitCover match={w.match} size="card" />
-                </button>
-                <div className="cu-meta">
-                  <span className="d">{w.date}</span>
-                  {w.venue && <span>· {w.venue}</span>}
+            {upcoming.map((m) => {
+              const md = homeMatchToMatchData(m)
+              return (
+                <div className="cu-card" key={m.id}>
+                  <button className="cover-tap" onClick={() => openMatch(md)} aria-label="Open match">
+                    <SplitCover match={md} size="card" />
+                  </button>
+                  <div className="cu-meta">
+                    <span className="d">{formatKickoff(m.startsAt)}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
@@ -149,7 +199,7 @@ export default function Home() {
               <Dot />
               <span className="caption">{onThisDay.moment}</span>
             </div>
-            <p className="otd-excerpt">“{onThisDay.excerpt}”</p>
+            <p className="otd-excerpt">"{onThisDay.excerpt}"</p>
           </div>
         </div>
       </section>
@@ -163,7 +213,7 @@ export default function Home() {
   )
 }
 
-/* Edge state — no match today, but still alive: revisit an archive fragment. */
+/* Edge state — no match today (and no data at all). */
 function NoMatchHero() {
   return (
     <div className="hero-cover">
@@ -172,7 +222,7 @@ function NoMatchHero() {
         <button className="cta-block ghost">Revisit this memory</button>
       </div>
       <p className="caption" style={{ marginTop: 16, textAlign: 'center' }}>
-        No match in your life today — but this one, a year ago, is worth returning to.
+        No match today — but this one, a year ago, is worth returning to.
       </p>
     </div>
   )

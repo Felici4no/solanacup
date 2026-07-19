@@ -203,4 +203,12 @@ export const Icon = {
       <path d="M5 12.5l4.5 4.5L19 7" />
     </svg>
   ),
+  Share: (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="2.2" />
+      <circle cx="6" cy="12" r="2.2" />
+      <circle cx="18" cy="19" r="2.2" />
+      <path d="M8.1 10.9l7.8-4.4M8.1 13.1l7.8 4.4" />
+    </svg>
+  ),
 }

@@ -92,6 +92,7 @@ export const TEAMS: Record<string, Team> = {
   germany: { id: 'germany', name: 'Germany', short: 'GER', kind: 'nation', colors: ['#111114', '#DD0000', '#FFCE00'], flag: 'DE' },
   france: { id: 'france', name: 'France', short: 'FRA', kind: 'nation', colors: ['#0055A4', '#F2EEE6', '#EF4135'], flag: 'FR' },
   england: { id: 'england', name: 'England', short: 'ENG', kind: 'nation', colors: ['#CF081F', '#F2EEE6', '#00247D'], flag: 'EN' },
+  spain: { id: 'spain', name: 'Spain', short: 'ESP', kind: 'nation', colors: ['#C60B1E', '#FFC400', '#003DA5'], flag: 'ES' },
 }
 
 export const COMPETITIONS: Record<string, Competition> = {
@@ -132,7 +133,7 @@ export function Crest({ id, size = 40 }: { id: string; size?: number }) {
 /* ============================================================
    National flags — real official art via TeamMark. Roundel or rect.
    ============================================================ */
-export type FlagCode = 'BR' | 'AR' | 'DE' | 'FR' | 'EN' | 'IT'
+export type FlagCode = 'BR' | 'AR' | 'DE' | 'FR' | 'EN' | 'IT' | 'ES'
 
 const FLAG_TEAM: Record<FlagCode, string> = {
   BR: 'brazil',
@@ -141,6 +142,7 @@ const FLAG_TEAM: Record<FlagCode, string> = {
   FR: 'france',
   EN: 'england',
   IT: 'italy',
+  ES: 'spain',
 }
 
 export function Flag({

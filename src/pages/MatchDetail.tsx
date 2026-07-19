@@ -26,6 +26,8 @@ import {
 type Phase = 'pre' | 'live' | 'post'
 type Tab = 'story' | 'moments' | 'match'
 
+const SHOW_STATE_SWITCHER = import.meta.env.DEV
+
 const PHASES: { id: Phase; label: string }[] = [
   { id: 'pre', label: 'Pre-match' },
   { id: 'live', label: 'Live' },
@@ -71,17 +73,19 @@ export default function MatchDetail({ match }: { match: MatchData }) {
 
   return (
     <div className="page">
-      {/* demo-only state switcher */}
-      <div className="statepeek" role="group" aria-label="Preview state">
-        <span className="label">State</span>
-        <div className="peek-pills">
-          {PHASES.map((p) => (
-            <button key={p.id} className="peek-pill" aria-pressed={phase === p.id} onClick={() => setPhase(p.id)}>
-              {p.label}
-            </button>
-          ))}
+      {/* demo-only state switcher — hidden in production */}
+      {SHOW_STATE_SWITCHER && (
+        <div className="statepeek" role="group" aria-label="Preview state">
+          <span className="label">State</span>
+          <div className="peek-pills">
+            {PHASES.map((p) => (
+              <button key={p.id} className="peek-pill" aria-pressed={phase === p.id} onClick={() => setPhase(p.id)}>
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 1 — hero */}
       <MatchCover match={heroMatch} format="hero" />

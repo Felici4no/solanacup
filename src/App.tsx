@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BRAND, BRAND_SUB, BRAND_ACCENT, todaysChapter, comingUp } from './data'
+import { BRAND, BRAND_SUB, BRAND_ACCENT, todaysChapter } from './data'
 import { pulseMatch } from './pulse'
 import { Icon } from './ui'
 import { team } from './assets'
@@ -7,6 +7,8 @@ import { AmbientBackground } from './AmbientBackground'
 import { NavContext } from './nav'
 import { watchlistStore, matchId } from './watchlist'
 import type { MatchData } from './MatchCover'
+import { shareProfile } from './share'
+import { PUBLIC_USERNAME } from './demo/repository'
 import Home from './pages/Home'
 import MatchPulse from './pages/MatchPulse'
 import Search from './pages/Search'
@@ -64,9 +66,9 @@ export default function App() {
   const [tab, setTab] = useState<Tab>('home')
   const [stack, setStack] = useState<Overlay[]>([])
 
-  // Curated upcoming matches start saved (persisted, seeded once).
+  // Seed the fictional demo match into the watchlist on first use.
   useEffect(() => {
-    watchlistStore.seed([todaysChapter, ...comingUp.map((c) => c.match)].map(matchId))
+    watchlistStore.seed([todaysChapter].map(matchId))
   }, [])
 
   const overlay = stack[stack.length - 1]
@@ -87,6 +89,18 @@ export default function App() {
   const amb = ambientFor(tab, overlay)
   const viewKey = overlay ? `${overlay.type}-${stack.length}` : tab
   const onProfile = !overlay && tab === 'profile'
+  const [shareHint, setShareHint] = useState<'idle' | 'copied' | 'shared'>('idle')
+
+  async function doProfileShare() {
+    const result = await shareProfile(PUBLIC_USERNAME)
+    if (result === 'shared') {
+      setShareHint('shared')
+    } else if (result === 'copied') {
+      setShareHint('copied')
+    }
+    // cancelled or failed: no feedback
+    if (result !== 'cancelled') window.setTimeout(() => setShareHint('idle'), 2200)
+  }
 
   return (
     <NavContext.Provider value={nav}>
@@ -112,13 +126,25 @@ export default function App() {
             </span>
             <span className="wm-sub">{BRAND_SUB}</span>
           </div>
-          <button
-            className="profile-btn"
-            aria-label={onProfile ? 'Settings' : 'Profile'}
-            onClick={() => (onProfile ? nav.openSettings() : goTab('profile'))}
-          >
-            {onProfile ? Icon.Gear : Icon.ProfileSmall}
-          </button>
+          <div className="header-right">
+            {onProfile && (
+              <button
+                className="profile-btn share-profile-btn"
+                aria-label="Compartilhar perfil"
+                title={shareHint === 'copied' ? 'Link copiado ✓' : shareHint === 'shared' ? 'Compartilhado ✓' : 'Compartilhar perfil'}
+                onClick={doProfileShare}
+              >
+                {shareHint !== 'idle' ? Icon.Check : Icon.Share}
+              </button>
+            )}
+            <button
+              className="profile-btn"
+              aria-label={onProfile ? 'Settings' : 'Profile'}
+              onClick={() => (onProfile ? nav.openSettings() : goTab('profile'))}
+            >
+              {onProfile ? Icon.Gear : Icon.ProfileSmall}
+            </button>
+          </div>
         </header>
 
         <main key={viewKey}>

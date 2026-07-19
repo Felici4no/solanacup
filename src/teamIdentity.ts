@@ -26,6 +26,7 @@ import germanyFlag from './assets/teams/flags/de.svg'
 import franceFlag from './assets/teams/flags/fr.svg'
 import englandFlag from './assets/teams/flags/gb-eng.svg'
 import italyFlag from './assets/teams/flags/it.svg'
+import spainFlag from './assets/teams/flags/es.svg'
 
 export type TeamIdentity = {
   id: string
@@ -76,6 +77,11 @@ const SEEDS: IdentitySeed[] = [
     shortName: 'ITA',
     kind: 'national',
     colors: ['#008C45', PAPER, '#CD212A'],
+  },
+  {
+    // flag-only identity: referenced by FlagCode 'ES'
+    id: 'spain',
+    flagSrc: spainFlag,
   },
 ]
 
