@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { LIVE_API } from '../live/client'
+import { LivePanel } from '../live/LivePanel'
 import {
   pulseMatch,
   pulseAnnotations,
@@ -33,6 +35,8 @@ import {
 } from '../pulse'
 import { competition, team } from '../assets'
 import { StarRange, MiniStars, MOMENT_STAR_LABELS, labelFor } from '../StarRange'
+import { OfficialMomentVideo } from '../OfficialMomentVideo'
+import { matchBroadcast, eventVideoMarkers } from '../video'
 
 const M = pulseMatch
 const pct = (m: number) => (Math.min(95, Math.max(0, m)) / 95) * 100
@@ -150,6 +154,9 @@ export default function MatchPulse() {
 
   return (
     <div className="page">
+      {/* Live World Cup data from the GAM3BOOK backend (TxLINE), when enabled. */}
+      {LIVE_API && <LivePanel />}
+
       {/* demo-only mode switch */}
       <div className="statepeek" role="group" aria-label="Match mode">
         <span className="label">Mode</span>
@@ -174,6 +181,20 @@ export default function MatchPulse() {
           )}
         </div>
       </div>
+
+      {/* Official broadcast clip for the selected moment — a layer above the
+          Pulse. It only READS the cursor selection; taps on its moment list
+          route back through setCursorTo, so selection stays single-source. */}
+      {mode === 'post' && (
+        <OfficialMomentVideo
+          broadcast={matchBroadcast}
+          markers={eventVideoMarkers}
+          events={visibleEvents}
+          selectedEventId={eventAtCursor?.id ?? null}
+          selectedMinute={cursor}
+          onSelectEvent={(m) => setCursorTo(m.gameMinute)}
+        />
+      )}
 
       <p className="mp-hint">Tap or drag through the match.</p>
 

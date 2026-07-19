@@ -8,7 +8,8 @@ import {
 } from '../data'
 import { MatchCover, SplitCover, MemoryStrip, CommunityStory, type MatchData } from '../MatchCover'
 import { useNav } from '../nav'
-import { Rating, SectionHead, Dot, Icon } from '../ui'
+import { matchPresentation } from '../matchState'
+import { Rating, SectionHead, Dot, Icon, DemoTag } from '../ui'
 
 type Phase = 'pre' | 'live' | 'post' | 'none'
 
@@ -36,7 +37,16 @@ export default function Home() {
   // the kickoff line already says "Tonight"; the chip appears once there is state.
   const heroMatch: MatchData = {
     ...todaysChapter,
-    status: phase === 'live' ? 'You’re watching' : phase === 'post' ? 'Ended' : watching ? 'You’re in' : undefined,
+    // Pre-match carries no chip on Home — the kickoff line already says
+    // "Tonight". Live/full-time take their label from the central model.
+    status:
+      phase === 'none'
+        ? undefined
+        : phase === 'pre'
+          ? watching
+            ? 'You’re in'
+            : undefined
+          : matchPresentation(phase, { checkedIn: true }).statusLabel,
     kickoff: phase === 'live' ? todaysChapter.minute : phase === 'post' ? undefined : todaysChapter.kickoff,
     score: phase === 'live' ? todaysChapter.liveScore : phase === 'post' ? todaysChapter.fullTime : undefined,
   }
@@ -146,7 +156,7 @@ export default function Home() {
 
       {/* SECTION 4 — Community moment */}
       <section className="section">
-        <SectionHead label="Community moment" />
+        <div className="section-head"><span className="label">Community moment</span><DemoTag /></div>
         <CommunityStory match={communityMoment.match} insight={communityMoment.insight} kicker="Tonight at Morumbi" />
       </section>
     </div>

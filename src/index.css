@@ -187,6 +187,23 @@ img, svg { display: block; }
 .flag { position: relative; display: inline-block; flex: 0 0 auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4)); }
 .flag-rect { border-radius: 3px; overflow: hidden; }
 
+/* TeamMark — real club crests + national flags (official art, undistorted) */
+.teammark { position: relative; display: inline-grid; place-items: center; flex: 0 0 auto; }
+.teammark-img { display: block; width: 100%; height: 100%; }
+.teammark-crest .teammark-img { object-fit: contain; }
+.teammark-flag .teammark-img { object-fit: cover; }
+.teammark-roundel { border-radius: 50%; }
+.teammark-rect { border-radius: 3px; }
+.teammark-shield.teammark-support { border-radius: 18%; }
+.teammark-flag.teammark-roundel, .teammark-flag.teammark-rect { overflow: hidden; }
+.teammark-flag.teammark-roundel { border: 1px solid var(--line-2); }
+/* soft neutral plate — keeps white-heavy crests legible on dark grounds */
+.teammark-support { background: rgba(242, 238, 230, 0.08); border: 1px solid rgba(242, 238, 230, 0.14); }
+.teammark-support .teammark-img { padding: 7%; }
+.teammark-fallback svg { position: absolute; inset: 0; }
+.teammark-mono { position: relative; font-family: var(--serif); font-weight: 500;
+  letter-spacing: 0.02em; opacity: 0.78; z-index: 1; }
+
 /* ============================================================ HOME */
 .hero-cover { position: relative; }
 .hero-bar { display: flex; align-items: center; gap: var(--s2); margin-top: var(--s2);

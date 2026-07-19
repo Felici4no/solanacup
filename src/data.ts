@@ -2,8 +2,7 @@ import type { MatchData } from './MatchCover'
 
 /* Editorial mock content, now match-centric so every item has identity. */
 
-export const BRAND = 'Vez'
-export const BRAND_SUB = 'Memories live here'
+export { BRAND, BRAND_SUB, BRAND_ACCENT, TOKEN_SYMBOL } from './brand'
 
 export const profile = {
   name: 'Lucas Feliciano',

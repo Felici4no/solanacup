@@ -321,41 +321,42 @@ export function eventLabel(e: PulseEvent): string {
 }
 
 /* ============================================================
-   MOCK DATA — São Paulo 2–1 River Plate
+   MOCK DATA — England 1–2 Argentina
+   FIFA World Cup 2026 semifinal, Atlanta. Real match shape
+   reconstructed from the official CazéTV broadcast; minutes are
+   rounded to the pulse grid (the stoppage-time winner sits at
+   90). Demo-tagged seed content (see seed.ts / video.ts).
    ============================================================ */
 const q = (text: string, agreePct: number, votes: number): Question => ({ text, agreePct, votes })
 
 export const pulseMatch: PulseMatch = {
-  home: 'saopaulo',
-  away: 'riverplate',
-  competition: 'libertadores',
-  stage: 'Semifinal · First leg',
-  venue: 'Morumbi',
-  score: '2 — 1',
+  home: 'england',
+  away: 'argentina',
+  competition: 'worldcup',
+  stage: 'Semifinal',
+  venue: 'Atlanta Stadium',
+  score: '1 — 2',
   status: 'Full time',
   events: [
-    { id: 'e12', minute: 12, type: 'card', cardType: 'yellow', player: 'Rivero', team: 'away', phase: 'First half', impact: 2.3, question: q('Was this card deserved?', 39, 520) },
-    { id: 'e35', minute: 35, type: 'save', player: 'Rafael', team: 'home', phase: 'First half', impact: 3.4, question: q('Was this an underrated save?', 48, 610) },
-    { id: 'e40', minute: 40, type: 'goal', player: 'Borja', team: 'away', phase: 'First half', impact: 4.0, question: q('Did River score against the run of play?', 61, 940) },
-    { id: 'e51', minute: 51, type: 'sub', player: 'Colidio on', team: 'away', phase: 'Second half', impact: 1.8, question: q('Did this substitution shift the momentum?', 44, 430) },
-    { id: 'e63', minute: 63, type: 'chance', player: 'Lucas Moura', team: 'home', phase: 'Second half', impact: 3.9, question: q('Should this have been a goal?', 56, 880) },
-    { id: 'e78', minute: 78, type: 'shot', player: 'Calleri', team: 'home', phase: 'Second half', impact: 3.0, question: q('Did this shot signal the comeback?', 52, 470) },
-    { id: 'e79', minute: 79, type: 'shot', player: 'Ferreirinha', team: 'home', phase: 'Second half', impact: 3.1, question: q('Did this shot deserve better?', 49, 380) },
-    { id: 'e80', minute: 80, type: 'shot', player: 'Bobadilla', team: 'home', phase: 'Second half', impact: 3.2, question: q('Was the pressure becoming irresistible?', 67, 520) },
-    { id: 'e81', minute: 81, type: 'save', player: 'Armani', team: 'away', phase: 'Second half', impact: 4.1, question: q('Was this the best save of the match?', 73, 1204) },
-    { id: 'e82', minute: 82, type: 'corner', team: 'home', phase: 'Second half', impact: 2.6, question: q('Did this corner carry danger?', 41, 300) },
-    { id: 'e83', minute: 83, type: 'corner', team: 'home', phase: 'Second half', impact: 2.8, question: q('Did you sense a goal coming?', 71, 640) },
-    { id: 'e84', minute: 84, type: 'goal', player: 'Luciano', team: 'home', phase: 'Second half', impact: 4.6, question: q('Did this equaliser change everything?', 84, 1620) },
-    { id: 'e87', minute: 87, type: 'goal', player: 'Calleri', team: 'home', phase: 'Second half', impact: 4.8, decisive: true, question: q('Was this the moment that defined the match?', 91, 2310) },
+    { id: 'e36', minute: 36, type: 'card', cardType: 'yellow', team: 'home', phase: 'First half', impact: 2.2, question: q('Did the referee lose the game here?', 37, 480) },
+    { id: 'e41', minute: 41, type: 'card', cardType: 'yellow', player: 'Lisandro Martínez', team: 'away', phase: 'First half', impact: 2.7, question: q('Was this card inevitable?', 58, 690) },
+    { id: 'e51', minute: 51, type: 'card', cardType: 'yellow', player: 'Cuti Romero', team: 'away', phase: 'Second half', impact: 2.4, question: q('Was Romero walking a tightrope?', 63, 540) },
+    { id: 'e55', minute: 55, type: 'goal', player: 'Anthony Gordon', team: 'home', phase: 'Second half', impact: 4.2, question: q('Was this goal pure Tuchel design?', 66, 1180) },
+    { id: 'e64', minute: 64, type: 'sub', player: 'Nico González on', team: 'away', phase: 'Second half', impact: 2.1, question: q('Did Scaloni’s gamble change the match?', 71, 830) },
+    { id: 'e82', minute: 82, type: 'shot', player: 'De Paul', team: 'away', phase: 'Second half', impact: 3.1, question: q('Was the siege becoming unbearable?', 69, 610) },
+    { id: 'e83', minute: 83, type: 'chance', player: 'Messi', team: 'away', phase: 'Second half', impact: 3.9, question: q('Should Messi have scored?', 47, 1050) },
+    { id: 'e84', minute: 84, type: 'save', player: 'Pickford', team: 'home', phase: 'Second half', impact: 4.1, question: q('Did Pickford only delay the inevitable?', 72, 980) },
+    { id: 'e85', minute: 85, type: 'goal', player: 'Enzo Fernández', team: 'away', phase: 'Second half', impact: 4.7, question: q('Did this equaliser feel inevitable?', 81, 1740) },
+    { id: 'e90', minute: 90, type: 'goal', player: 'Lautaro Martínez', team: 'away', phase: 'Second half', impact: 4.9, decisive: true, question: q('Is this Argentina’s defining virada?', 89, 2460) },
   ],
   sequences: [
     {
-      id: 'river-strike', name: 'River strike first', phase: 'First half', start: 35, end: 40, team: 'away',
-      question: q('Did River’s goal come against the run of play?', 61, 940),
+      id: 'yellow-spell', name: 'The game hardens', phase: 'First half', start: 36, end: 41,
+      question: q('Did the cards change the temperature?', 54, 720),
     },
     {
-      id: 'sp-pressure', name: 'São Paulo pressure', phase: 'Second half', start: 78, end: 84, team: 'home',
-      question: q('Did this sequence change the match?', 82, 1842),
+      id: 'arg-siege', name: 'Argentina siege', phase: 'Second half', start: 82, end: 85, team: 'away',
+      question: q('Did this sequence decide the final?', 85, 1930),
     },
   ],
   annotations: {},
@@ -364,12 +365,12 @@ export const pulseMatch: PulseMatch = {
 /* Temporal annotations — event, time and sequence anchored. */
 const H = 60 * 60 * 1000
 export const pulseAnnotations: TemporalAnnotation[] = [
-  { id: 'an-87a', matchId: 'sp-riv', anchorType: 'event', minute: 87, eventId: 'e87', text: 'The whole north stand rose as one body.', author: 'Marina', mono: 'MA', contextTags: ['At the stadium'], visibility: 'community', createdAt: 5 * H },
-  { id: 'an-84a', matchId: 'sp-riv', anchorType: 'event', minute: 84, eventId: 'e84', text: 'I didn’t breathe again until the net actually moved.', author: 'João', mono: 'JP', contextTags: ['Watching abroad'], visibility: 'community', createdAt: 4 * H },
-  { id: 'an-seq', matchId: 'sp-riv', anchorType: 'sequence', minute: 78, endMinute: 84, sequenceId: 'sp-pressure', text: 'This sequence is the whole match. Everything before was preamble.', author: 'Rafael', mono: 'RF', contextTags: ['Neutral supporter'], visibility: 'community', createdAt: 3 * H },
-  { id: 'an-74', matchId: 'sp-riv', anchorType: 'time', minute: 74, text: 'This was when River quietly started to lose control — no event, just a feeling.', author: 'Camila', mono: 'CM', contextTags: ['At the stadium'], visibility: 'community', createdAt: 2 * H },
-  { id: 'an-81', matchId: 'sp-riv', anchorType: 'event', minute: 81, eventId: 'e81', text: 'Armani kept them alive for three more minutes. Cruel, in the end.', author: 'Diego', mono: 'DG', contextTags: ['Away supporter'], visibility: 'community', createdAt: 3.5 * H },
+  { id: 'an-90a', matchId: 'wc26-sf-eng-arg', anchorType: 'event', minute: 90, eventId: 'e90', text: 'The whole away end rose as one body.', author: 'Marina', mono: 'MA', contextTags: ['At the stadium'], visibility: 'community', createdAt: 5 * H },
+  { id: 'an-85a', matchId: 'wc26-sf-eng-arg', anchorType: 'event', minute: 85, eventId: 'e85', text: 'I didn’t breathe again until the net actually moved.', author: 'João', mono: 'JP', contextTags: ['Watching abroad'], visibility: 'community', createdAt: 4 * H },
+  { id: 'an-seq', matchId: 'wc26-sf-eng-arg', anchorType: 'sequence', minute: 82, endMinute: 85, sequenceId: 'arg-siege', text: 'This sequence is the whole match. Everything before was preamble.', author: 'Rafael', mono: 'RF', contextTags: ['Neutral supporter'], visibility: 'community', createdAt: 3 * H },
+  { id: 'an-74', matchId: 'wc26-sf-eng-arg', anchorType: 'time', minute: 74, text: 'This was when England quietly started to lose control — no event, just a feeling.', author: 'Camila', mono: 'CM', contextTags: ['At the stadium'], visibility: 'community', createdAt: 2 * H },
+  { id: 'an-84', matchId: 'wc26-sf-eng-arg', anchorType: 'event', minute: 84, eventId: 'e84', text: 'Pickford kept them alive for one more minute. Cruel, in the end.', author: 'Diego', mono: 'DG', contextTags: ['Away supporter'], visibility: 'community', createdAt: 3.5 * H },
   // mine, captured live — promotable into the permanent memory post-match
-  { id: 'an-mine84', matchId: 'sp-riv', anchorType: 'event', minute: 84, eventId: 'e84', text: 'Dad grabbed my shoulder before the ball even crossed the line.', author: 'You', mono: 'LF', contextTags: ['At the stadium'], visibility: 'private', createdAt: 4.1 * H, mine: true, fromLive: true },
-  { id: 'an-mine63', matchId: 'sp-riv', anchorType: 'time', minute: 63, text: 'I leaned over and told him it was coming. It came.', author: 'You', mono: 'LF', contextTags: ['At the stadium'], visibility: 'private', createdAt: 1.9 * H, mine: true, fromLive: true },
+  { id: 'an-mine85', matchId: 'wc26-sf-eng-arg', anchorType: 'event', minute: 85, eventId: 'e85', text: 'Dad grabbed my shoulder before the ball even crossed the line.', author: 'You', mono: 'LF', contextTags: ['At the stadium'], visibility: 'private', createdAt: 4.1 * H, mine: true, fromLive: true },
+  { id: 'an-mine63', matchId: 'wc26-sf-eng-arg', anchorType: 'time', minute: 63, text: 'I leaned over and told him the game would turn. It turned.', author: 'You', mono: 'LF', contextTags: ['At the stadium'], visibility: 'private', createdAt: 1.9 * H, mine: true, fromLive: true },
 ]

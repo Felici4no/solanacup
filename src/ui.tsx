@@ -25,6 +25,12 @@ export function Dot() {
   return <span className="dotsep" aria-hidden />
 }
 
+/* Marks a surface built from seeded content, so illustrative data is
+   never mistaken for real traction. */
+export function DemoTag({ label = 'Demo data' }: { label?: string }) {
+  return <span className="demo-tag">{label}</span>
+}
+
 export function SectionHead({
   label,
   more,
