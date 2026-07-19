@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
 import { matchDetail as D } from '../data'
+import { demoStore, PUBLIC_USERNAME } from '../demo/repository'
+import { chapterUrl, profileUrl } from '../router'
+import { ShareLinkButton } from '../share'
 import { MatchCover, type MatchData } from '../MatchCover'
 import { StadiumVisual } from '../visuals'
 import { Crest, team } from '../assets'
@@ -33,7 +36,11 @@ export default function MatchDetail({ match }: { match: MatchData }) {
   const [tab, setTab] = useState<Tab>('story')
   const [anchor, setAnchor] = useState(D.anchors[0])
   const [editing, setEditing] = useState(false)
-  const [memory, setMemory] = useState<SavedMemory | null>(null)
+  // The saved memory persists as a demo chapter (localStorage repository),
+  // so it survives reload and feeds the public profile.
+  const [memory, setMemory] = useState<SavedMemory | null>(
+    () => demoStore.chapterForMatch(matchId(match))?.memory ?? null,
+  )
   const { openWatchlistMatch } = useNav()
 
   // One place decides status, CTA and landing tab for this phase, and the
@@ -124,19 +131,27 @@ export default function MatchDetail({ match }: { match: MatchData }) {
       {tab === 'story' && (
         <div className="md-panel">
           {phase === 'post' && memory ? (
-            <CompletedMemory
-              memory={memory}
-              cover={<MatchCover match={heroMatch} format="landscape" />}
-              onEdit={() => {
-                setMemory(null)
-                setEditing(true)
-              }}
-            />
+            <>
+              <CompletedMemory
+                memory={memory}
+                cover={<MatchCover match={heroMatch} format="landscape" />}
+                onEdit={() => {
+                  setMemory(null)
+                  setEditing(true)
+                }}
+              />
+              <ChapterShareRow matchKey={matchId(match)} />
+            </>
           ) : phase === 'post' && editing ? (
             <CompleteMemoryEditor
               moments={D.moments.map((m) => ({ min: m.min, type: m.type, player: m.player }))}
               accentTeamId={heroMatch.home}
               onSave={(m) => {
+                demoStore.saveChapter({
+                  matchId: matchId(match),
+                  match: { ...heroMatch, status: 'Ended' },
+                  memory: m,
+                })
                 setMemory(m)
                 setEditing(false)
               }}
@@ -232,6 +247,20 @@ export default function MatchDetail({ match }: { match: MatchData }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/* Saved chapter → shareable public URL + the public profile it feeds.
+   Rendered only under a persisted memory; shares nothing private. */
+function ChapterShareRow({ matchKey }: { matchKey: string }) {
+  const chapter = demoStore.chapterForMatch(matchKey)
+  if (!chapter) return null
+  return (
+    <div className="pub-share" style={{ marginTop: 16 }}>
+      <ShareLinkButton label="Copy chapter link" title="My GAM3BOOK chapter" url={chapterUrl(chapter.id)} />
+      <ShareLinkButton label="Copy profile link" title="My GAM3BOOK demo profile" url={profileUrl(PUBLIC_USERNAME)} />
+      <span className="pub-share-note">Public on your demo profile</span>
     </div>
   )
 }

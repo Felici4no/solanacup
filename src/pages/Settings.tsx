@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { useNav } from '../nav'
 import { Button } from '../Button'
 import { Icon } from '../ui'
+import { demoStore } from '../demo/repository'
+import { navigate } from '../router'
 
 /* /settings — real, self-contained toggles (no dead controls). */
 const TOGGLES = [
@@ -49,6 +51,23 @@ export default function Settings() {
             </button>
           </div>
         ))}
+      </section>
+
+      <section className="set-group">
+        <span className="label" style={{ display: 'block', marginBottom: 10 }}>Demonstration</span>
+        <button
+          className="nav-row"
+          onClick={() => {
+            demoStore.reset()
+            navigate('/welcome')
+          }}
+        >
+          <span className="nr-body">
+            <span className="nr-title">Reset the demonstration</span>
+            <span className="nr-sub">Clears the local demo session and saved chapters</span>
+          </span>
+          <span className="nr-chev">{Icon.Chevron}</span>
+        </button>
       </section>
 
       <div style={{ marginTop: 24 }}>
